@@ -1,22 +1,20 @@
 
-use Test::More tests=>2;
+use Test::More tests => 2;
 
-use_ok ('Corinna');
-
+use_ok('Corinna');
 
 my $pastor = Corinna->new();
-	
 
-$pastor->generate(	mode =>'eval',
-					schema=>['./test/source/country/schema/country_schema2.xsd'], 
-					class_prefix=>"Corinna::Test",
-					destination=>'./test/out/lib/', 					
-					verbose =>0
-				);
+$pastor->generate(
+    mode         => 'eval',
+    schema       => ['./test/source/country/schema/country_schema2.xsd'],
+    class_prefix => "Corinna::Test",
+    destination  => './test/out/lib/',
+    verbose      => 0
+);
 
-#	print STDERR "\nTest OVER baby!\n";			
-ok(1);	# survived everything
-  
+#	print STDERR "\nTest OVER baby!\n";
+ok(1);    # survived everything
 
 1;
 

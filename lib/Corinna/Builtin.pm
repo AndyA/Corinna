@@ -1,3 +1,4 @@
+package Corinna::Builtin;
 use utf8;
 use strict;
 use warnings;
@@ -19,149 +20,187 @@ use Corinna::Builtin::hexBinary;
 package Corinna::Builtin::string;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-
-Corinna::Builtin::string->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::string',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'string|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
+Corinna::Builtin::string->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::string',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'string|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::token;
 our @ISA = qw(Corinna::Builtin::string);
 
-Corinna::Builtin::token->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::token',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'token|http://www.w3.org/2001/XMLSchema',
-                 'whiteSpace' => 'collapse',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::token->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::token',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'token|http://www.w3.org/2001/XMLSchema',
+            'whiteSpace'  => 'collapse',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::integer;
 our @ISA = qw(Corinna::Builtin::Numeric);
 
-Corinna::Builtin::integer->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::integer',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'integer|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::integer->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::integer',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'integer|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::nonNegativeInteger;
 our @ISA = qw(Corinna::Builtin::integer);
 
-Corinna::Builtin::nonNegativeInteger->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::nonNegativeInteger',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'minInclusive' => 0,
-                 'name' => 'nonNegativeInteger|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::nonNegativeInteger->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::nonNegativeInteger',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'minInclusive' => 0,
+            'name' => 'nonNegativeInteger|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::nonPositiveInteger;
 our @ISA = qw(Corinna::Builtin::integer);
 
-Corinna::Builtin::nonPositiveInteger->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::nonPositiveInteger',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'maxInclusive' => 0,
-                 'name' => 'nonPositiveInteger|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::nonPositiveInteger->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::nonPositiveInteger',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => 0,
+            'name' => 'nonPositiveInteger|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::anySimpleType;
 our @ISA = qw(Corinna::Builtin::SimpleType);
 
-Corinna::Builtin::anySimpleType->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::anySimpleType',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'anySimpleType|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::anySimpleType->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::anySimpleType',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'anySimpleType|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::anyURI;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::anyURI->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::anyURI',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'anyURI|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::anyURI->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::anyURI',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'anyURI|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::byte;
 our @ISA = qw(Corinna::Builtin::integer);
 
-Corinna::Builtin::byte->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::byte',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'maxInclusive' => 127,                 
-				 'minInclusive' => -128,
-                 'name' => 'byte|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
-
+Corinna::Builtin::byte->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::byte',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => 127,
+            'minInclusive' => -128,
+            'name'         => 'byte|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::decimal;
 our @ISA = qw(Corinna::Builtin::Numeric);
 
-Corinna::Builtin::decimal->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::decimal',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'decimal|http://www.w3.org/2001/XMLSchema',                 
-                 'regex'=> qr/^[+-]?\d+(?:\.\d+)?$/,          # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::decimal->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::decimal',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'decimal|http://www.w3.org/2001/XMLSchema',
+            'regex'       => qr/^[+-]?\d+(?:\.\d+)?$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::double;
 our @ISA = qw(Corinna::Builtin::Numeric);
 
-Corinna::Builtin::double->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::double',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'double|http://www.w3.org/2001/XMLSchema',
-                 
-                 # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar                 
-                 'regex' => qr/^[+-]?(?:(?:INF)|(?:NaN)|(?:\d+(?:\.\d+)?)(?:[eE][+-]?\d+)?)$/,
-               }, 'Corinna::Schema::SimpleType' ) );
+Corinna::Builtin::double->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::double',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'double|http://www.w3.org/2001/XMLSchema',
 
-
+            # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+            'regex' =>
+              qr/^[+-]?(?:(?:INF)|(?:NaN)|(?:\d+(?:\.\d+)?)(?:[eE][+-]?\d+)?)$/,
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::duration;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::duration->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::duration',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'duration|http://www.w3.org/2001/XMLSchema',
-                 
-                  # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar who thanks to perlmonk Abigail-II
-                 'regex' => qr /^-? 				  # Optional leading minus.
+Corinna::Builtin::duration->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::duration',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'duration|http://www.w3.org/2001/XMLSchema',
+
+# Regex shamelessly copied from XML::Validator::Schema by Sam Tregar who thanks to perlmonk Abigail-II
+            'regex' => qr /^-? 				  # Optional leading minus.
 					            P                     # Required.
 					            (?=[T\d])             # Duration cannot be empty.
 						        (?:(?!-) \d+ Y)?      # Non-negative integer, Y (optional)
@@ -174,419 +213,516 @@ Corinna::Builtin::duration->XmlSchemaType( bless( {
            						(?:(?!-) \d+\.\d+ S)? # Non-negative decimal, S (optional)
            						)?                    # Entire T part is optional
 								)$/x,
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::ENTITIES;
 our @ISA = qw(Corinna::Builtin::List);
 
-Corinna::Builtin::ENTITIES->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::ENTITIES',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'list',
-                 'name' => 'ENTITIES|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::ENTITIES->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::ENTITIES',
+            'contentType' => 'simple',
+            'derivedBy'   => 'list',
+            'name'        => 'ENTITIES|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::ENTITY;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::ENTITY->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::ENTITY',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'ENTITY|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::ENTITY->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::ENTITY',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'ENTITY|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::float;
 our @ISA = qw(Corinna::Builtin::Numeric);
 
-Corinna::Builtin::float->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::float',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'float|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr/^[+-]?(?:(?:INF)|(?:NaN)|(?:\d+(?:\.\d+)?)(?:[eE][+-]?\d+)?)$/,   # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::float->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::float',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'float|http://www.w3.org/2001/XMLSchema',
+            'regex' =>
+              qr/^[+-]?(?:(?:INF)|(?:NaN)|(?:\d+(?:\.\d+)?)(?:[eE][+-]?\d+)?)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::gDay;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::gDay->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::gDay',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'gDay|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^---([0-2]\d{1}|3[0|1])(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/,   # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::gDay->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::gDay',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'gDay|http://www.w3.org/2001/XMLSchema',
+            'regex' =>
+qr /^---([0-2]\d{1}|3[0|1])(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::gMonth;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::gMonth->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::gMonth',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'gMonth|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^--(0\d|1[0-2])(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/,    # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::gMonth->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::gMonth',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'gMonth|http://www.w3.org/2001/XMLSchema',
+            'regex' =>
+              qr /^--(0\d|1[0-2])(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::gMonthDay;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::gMonthDay->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::gMonthDay',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'gMonthDay|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^--(\d{2,})-(\d\d)(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/,  # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::gMonthDay->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::gMonthDay',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'gMonthDay|http://www.w3.org/2001/XMLSchema',
+            'regex' =>
+              qr /^--(\d{2,})-(\d\d)(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::gYear;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::gYear->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::gYear',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'gYear|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^[-]?(\d{4,})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/,   # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::gYear->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::gYear',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'gYear|http://www.w3.org/2001/XMLSchema',
+            'regex' =>
+              qr /^[-]?(\d{4,})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::gYearMonth;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::gYearMonth->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::gYearMonth',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'gYearMonth|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^[-]?(\d{4,})-(1[0-2]{1}|0\d{1})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/,   # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
-
+Corinna::Builtin::gYearMonth->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::gYearMonth',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'gYearMonth|http://www.w3.org/2001/XMLSchema',
+            'regex' =>
+qr /^[-]?(\d{4,})-(1[0-2]{1}|0\d{1})(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::ID;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::ID->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::ID',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'ID|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::ID->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::ID',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'ID|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::IDREF;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::IDREF->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::IDREF',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'IDREF|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::IDREF->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::IDREF',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'IDREF|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::IDREFS;
 our @ISA = qw(Corinna::Builtin::List);
 
-Corinna::Builtin::IDREFS->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::IDREFS',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'list',
-                 'name' => 'IDREFS|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::IDREFS->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::IDREFS',
+            'contentType' => 'simple',
+            'derivedBy'   => 'list',
+            'name'        => 'IDREFS|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::int;
 our @ISA = qw(Corinna::Builtin::integer);
 
-Corinna::Builtin::int->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::int',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'maxInclusive' => 2147483647,                 
-				 'minInclusive' => -2147483648, 
-                 'name' => 'int|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr/^[+-]?\d+$/,    # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::int->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::int',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => 2147483647,
+            'minInclusive' => -2147483648,
+            'name'         => 'int|http://www.w3.org/2001/XMLSchema',
+            'regex'        => qr/^[+-]?\d+$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::language;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::language->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::language',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'language|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::language->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::language',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'language|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::long;
 our @ISA = qw(Corinna::Builtin::integer);
 
-Corinna::Builtin::long->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::long',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'long|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::long->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::long',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'long|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::Name;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::Name->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::Name',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'Name|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::Name->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::Name',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'Name|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::NCName;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::NCName->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::NCName',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'NCName|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::NCName->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::NCName',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'NCName|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::negativeInteger;
 our @ISA = qw(Corinna::Builtin::nonPositiveInteger);
 
-Corinna::Builtin::negativeInteger->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::negativeInteger',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'maxInclusive' => -1,
-                 'name' => 'negativeInteger|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::negativeInteger->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::negativeInteger',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => -1,
+            'name' => 'negativeInteger|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::NMTOKEN;
 our @ISA = qw(Corinna::Builtin::token);
 
-Corinna::Builtin::NMTOKEN->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::NMTOKEN',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'NMTOKEN|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr/^[-.:\w\d]*$/,    # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::NMTOKEN->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::NMTOKEN',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'NMTOKEN|http://www.w3.org/2001/XMLSchema',
+            'regex'       => qr/^[-.:\w\d]*$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::NMTOKENS;
 our @ISA = qw(Corinna::Builtin::List);
 
-Corinna::Builtin::NMTOKENS->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::NMTOKENS',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'list',
-                 'name' => 'NMTOKENS|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
-
+Corinna::Builtin::NMTOKENS->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::NMTOKENS',
+            'contentType' => 'simple',
+            'derivedBy'   => 'list',
+            'name'        => 'NMTOKENS|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::normalizedString;
 our @ISA = qw(Corinna::Builtin::string);
 
-Corinna::Builtin::normalizedString->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::normalizedString',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'normalizedString|http://www.w3.org/2001/XMLSchema',
-                 'whiteSpace' => 'replace',
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::normalizedString->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::normalizedString',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'       => 'normalizedString|http://www.w3.org/2001/XMLSchema',
+            'whiteSpace' => 'replace',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::NOTATION;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::NOTATION->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::NOTATION',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'NOTATION|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^([A-z][A-z0-9]+:)?([A-z][A-z0-9]+)$/,   # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::NOTATION->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::NOTATION',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'NOTATION|http://www.w3.org/2001/XMLSchema',
+            'regex'       => qr /^([A-z][A-z0-9]+:)?([A-z][A-z0-9]+)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::positiveInteger;
 our @ISA = qw(Corinna::Builtin::nonNegativeInteger);
 
-Corinna::Builtin::positiveInteger->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::positiveInteger',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'minInclusive' => 1,
-                 'name' => 'positiveInteger|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::positiveInteger->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::positiveInteger',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'minInclusive' => 1,
+            'name' => 'positiveInteger|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::QName;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::QName->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::QName',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'QName|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^([A-z][A-z0-9]+:)?([A-z][A-z0-9]+)$/,    # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::QName->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::QName',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'QName|http://www.w3.org/2001/XMLSchema',
+            'regex'       => qr /^([A-z][A-z0-9]+:)?([A-z][A-z0-9]+)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::short;
 our @ISA = qw(Corinna::Builtin::integer);
 
-Corinna::Builtin::short->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::short',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'maxInclusive' => 32767,                 
-				 'minInclusive' => -32768,
-                 'name' => 'short|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
-
+Corinna::Builtin::short->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::short',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => 32767,
+            'minInclusive' => -32768,
+            'name'         => 'short|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::time;
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::time->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::time',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'time|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr /^[0-2]\d:[0-5]\d:[0-5]\d(\.\d+)?(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/,   # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::time->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::time',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'time|http://www.w3.org/2001/XMLSchema',
+            'regex' =>
+qr /^[0-2]\d:[0-5]\d:[0-5]\d(\.\d+)?(Z?|([+|-]([0-1]\d|2[0-4])\:([0-5]\d))?)$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::unsignedByte;
 our @ISA = qw(Corinna::Builtin::nonNegativeInteger);
 
-Corinna::Builtin::unsignedByte->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::unsignedByte',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'maxInclusive' => 255,
-				 'minInclusive' => 0,                 
-                 'name' => 'unsignedByte|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::unsignedByte->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::unsignedByte',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => 255,
+            'minInclusive' => 0,
+            'name'         => 'unsignedByte|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::unsignedInt;
 our @ISA = qw(Corinna::Builtin::nonNegativeInteger);
 
-Corinna::Builtin::unsignedInt->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::unsignedInt',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'maxInclusive' => 4294967295,
-				 'minInclusive' => 0,
-                 'name' => 'unsignedInt|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::unsignedInt->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::unsignedInt',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => 4294967295,
+            'minInclusive' => 0,
+            'name'         => 'unsignedInt|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::unsignedLong;
 our @ISA = qw(Corinna::Builtin::nonNegativeInteger);
 
-Corinna::Builtin::unsignedLong->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::unsignedLong',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'unsignedLong|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::unsignedLong->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::unsignedLong',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'unsignedLong|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #======================================================================
 package Corinna::Builtin::unsignedShort;
 our @ISA = qw(Corinna::Builtin::nonNegativeInteger);
 
-Corinna::Builtin::unsignedShort->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::unsignedShort',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-				 'maxInclusive' => 65535,
-				 'minInclusive' => 0,                 				 
-                 'name' => 'unsignedShort|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::unsignedShort->XmlSchemaType(
+    bless(
+        {
+            'class'        => 'Corinna::Builtin::unsignedShort',
+            'contentType'  => 'simple',
+            'derivedBy'    => 'restriction',
+            'maxInclusive' => 65535,
+            'minInclusive' => 0,
+            'name'         => 'unsignedShort|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 1;
 

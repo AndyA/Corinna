@@ -1,16 +1,14 @@
+package Corinna::Builtin::Numeric;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #======================================================================
-package Corinna::Builtin::Numeric;
 
 use Corinna::Builtin::Scalar;
 
 our @ISA = qw(Corinna::Builtin::Scalar);
-
 
 1;
 

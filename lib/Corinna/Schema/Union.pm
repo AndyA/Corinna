@@ -1,15 +1,14 @@
+package Corinna::Schema::Union;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #=====================================================
-package Corinna::Schema::Union;
 use Corinna::Schema::Object;
 our @ISA = qw(Corinna::Schema::Object);
 
 Corinna::Schema::Union->mk_accessors(qw(memberTypes memberClasses));
-
 
 1;
 

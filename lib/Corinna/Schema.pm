@@ -1,9 +1,9 @@
+package Corinna::Schema;
 use utf8;
 use strict;
 use warnings;
 
 #=======================================================
-package Corinna::Schema;
 
 use Corinna::Schema::Attribute;
 use Corinna::Schema::AttributeGroup;
@@ -23,7 +23,6 @@ use Corinna::Schema::Union;
 our @ISA = qw(Corinna::Schema::Object);
 
 Corinna::Schema->mk_accessors(
-qw(	targetNamespace 	 	 
-	attributeFormDefault 	elementFormDefault));
+    qw( targetNamespace attributeFormDefault elementFormDefault ));
 
 1;

@@ -1,11 +1,11 @@
+package Corinna::Schema::Attribute;
+
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #============================================================
-package Corinna::Schema::Attribute;
 
 use Corinna::Schema::Object;
 
@@ -14,7 +14,6 @@ our @ISA = qw(Corinna::Schema::Object);
 Corinna::Schema::Attribute->mk_accessors(qw(use));
 
 1;
-
 
 __END__
 

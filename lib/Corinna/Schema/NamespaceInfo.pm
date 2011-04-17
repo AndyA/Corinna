@@ -1,7 +1,7 @@
 package Corinna::Schema::NamespaceInfo;
 
 use Moose;
-use MooseX::UndefTolerant; # :(
+use MooseX::UndefTolerant;    # :(
 
 has uri => (
     is       => 'ro',

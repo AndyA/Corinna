@@ -1,3 +1,4 @@
+package Corinna::Pastorize;
 
 use utf8;
 use strict;
@@ -5,7 +6,6 @@ use warnings;
 no warnings qw(uninitialized);
 
 #===============================================
-package Corinna::Pastorize;
 
 use Corinna;
 
@@ -16,148 +16,158 @@ use Getopt::Long;
 use Pod::Usage;
 
 use vars qw($VERSION);
-$VERSION	= '1.0.1';
+$VERSION = '1.0.1';
 
 #-------------------------------------------------------------
 # METHOD
 #-------------------------------------------------------------
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};	
-	return bless $self, $class;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
+    return bless $self, $class;
 }
 
 #------------------------------------------------------------
 # run(@opts) : Class method
 #------------------------------------------------------------
 sub run ($;@) {
-	my $class = shift;
-	my $opts = {@_};
+    my $class = shift;
+    my $opts  = {@_};
 
-	$opts->{class_prefix}	||= 'MyApp::Data::';	# should override
-	$opts->{destination}	||= '/tmp/lib/perl/';	# should override		
-	$opts->{mode}			||= 'eval';
-	$opts->{module}			||= $opts->{class_prefix};		
-	$opts->{style}			||= 'single';	
-	$opts->{schema}			||= [];					# Will get it from @ARGV (multiple OK)
-	$opts->{verbose}		||= 0;
-			
-	GetOptions($opts, 	
-						'class_prefix|prefix|p:s',
-						'complex_isa|complex|c:s',						
-						'debug|g' 		=> sub {$opts->{verbose}=9, $opts->{debug}=1},
-						'destination|dest|d:s',						
-						'help|h+',
-						'man+',												
-						'mode|m:s',
-						'module|u:s',
-						'quiet|q' 		=> sub {$opts->{verbose}=0},
-						'simple_isa|simple|i:s',												
-						'style|s:s',
-						'verbose|v:2',		
-				);
-						
-	push @{$opts->{schema}}, @ARGV;
-	
-	$class->validate_opts($opts) or die "$0: Invalid syntax!\n";
-	
-	return $class->_run(%$opts);								
+    $opts->{class_prefix} ||= 'MyApp::Data::';         # should override
+    $opts->{destination}  ||= '/tmp/lib/perl/';        # should override
+    $opts->{mode}         ||= 'eval';
+    $opts->{module}       ||= $opts->{class_prefix};
+    $opts->{style}        ||= 'single';
+    $opts->{schema}  ||= [];    # Will get it from @ARGV (multiple OK)
+    $opts->{verbose} ||= 0;
+
+    GetOptions(
+        $opts,
+        'class_prefix|prefix|p:s',
+        'complex_isa|complex|c:s',
+        'debug|g' => sub { $opts->{verbose} = 9, $opts->{debug} = 1 },
+        'destination|dest|d:s',
+        'help|h+',
+        'man+',
+        'mode|m:s',
+        'module|u:s',
+        'quiet|q' => sub { $opts->{verbose} = 0 },
+        'simple_isa|simple|i:s',
+        'style|s:s',
+        'verbose|v:2',
+    );
+
+    push @{ $opts->{schema} }, @ARGV;
+
+    $class->validate_opts($opts) or die "$0: Invalid syntax!\n";
+
+    return $class->_run(%$opts);
 }
-
 
 #-------------------------------------------------------------
 # _run : private class method
 #-------------------------------------------------------------
 sub _run {
-	my $class 			= shift;
-	my $opts			= {@_};
-	my $print_result	= 0;
-	
-	if (lc($opts->{mode}) eq 'print') {
-		$print_result = 1;
-		$opts->{mode} = 'return';
-	}
-	
-	my $pastor = Corinna->new();
-	
-	my $result = $pastor->generate(%$opts);
-	
-	if (lc($opts->{mode})  eq 'eval') {
-		print "Pastorize: Eval OK.\n";
-	}
-	
-	if ($print_result) {
-		print "\n" . $result . "\n";
-	}
-	
+    my $class        = shift;
+    my $opts         = {@_};
+    my $print_result = 0;
+
+    if ( lc( $opts->{mode} ) eq 'print' ) {
+        $print_result = 1;
+        $opts->{mode} = 'return';
+    }
+
+    my $pastor = Corinna->new();
+
+    my $result = $pastor->generate(%$opts);
+
+    if ( lc( $opts->{mode} ) eq 'eval' ) {
+        print "Pastorize: Eval OK.\n";
+    }
+
+    if ($print_result) {
+        print "\n" . $result . "\n";
+    }
+
 }
 
 #-------------------------------------------------------------
 sub validate_opts($) {
-	my $class 	= shift;
-	my $opts	= shift;
-	
-	# Help wanted. Print SYNOPSIS and OPTIONS.
-	if ($opts->{help}) {
-		pod2usage(	-message => "Help message\n",
-					-exitval => 0,
-					-verbose => 1,
-				 );
-	}
-	
-	# Man page wanted. Print the entire manual
-	if ($opts->{man}) {
-		pod2usage(	-message => "MANUAL PAGE\n",
-					-exitval => 0,
-					-verbose => 2,
-				 );
-	}
-	
-	# Mode undefined. 
-	unless ($opts->{mode}) {
-		pod2usage(	-message => "Syntax error. Mode required!\n",
-					-exitval => 1,
-					-verbose	=> 2,
-				 );
-	}
-	
-	# convert to lower case
-	my $mode 	= $opts->{mode}  = lc($opts->{mode});
-	my $style 	= $opts->{style} = lc($opts->{style});	
-	my $schema  = $opts->{schema};
-		
-	if ($mode eq 'offline') {
-		# Destination undefined while we need to generate code.	
-		unless ($opts->{destination}) {	
-			pod2usage(	-message => "Syntax error. 'destination' required when 'mode' is offline!\n",
-						-exitval => 1,
-						-verbose	=> 2,
-					 );
-		}				
+    my $class = shift;
+    my $opts  = shift;
 
-		# Module undefined while mode is generate and style is single. 
-		if ($style eq 'single')  {
-			unless ($opts->{module}) {	
-				pod2usage(	-message => "Syntax error. 'module' required when 'mode' is offline and 'style' is single!\n",
-							-exitval => 1,
-							-verbose	=> 2,
-					 	);	
-			}		
-		}
-	
-	}
-	
-	# We need at least one schema to work on.
-	unless (scalar($schema)) {
-		pod2usage(	-message => "Syntax error. At least one schema required as argument!\n",
-					-exitval => 1,
-					-verbose	=> 2,
-				 );
-	}
-	
-	# Everything is OK. Indicate success to the caller.
-	return 1;
+    # Help wanted. Print SYNOPSIS and OPTIONS.
+    if ( $opts->{help} ) {
+        pod2usage(
+            -message => "Help message\n",
+            -exitval => 0,
+            -verbose => 1,
+        );
+    }
+
+    # Man page wanted. Print the entire manual
+    if ( $opts->{man} ) {
+        pod2usage(
+            -message => "MANUAL PAGE\n",
+            -exitval => 0,
+            -verbose => 2,
+        );
+    }
+
+    # Mode undefined.
+    unless ( $opts->{mode} ) {
+        pod2usage(
+            -message => "Syntax error. Mode required!\n",
+            -exitval => 1,
+            -verbose => 2,
+        );
+    }
+
+    # convert to lower case
+    my $mode  = $opts->{mode}  = lc( $opts->{mode} );
+    my $style = $opts->{style} = lc( $opts->{style} );
+    my $schema = $opts->{schema};
+
+    if ( $mode eq 'offline' ) {
+
+        # Destination undefined while we need to generate code.
+        unless ( $opts->{destination} ) {
+            pod2usage(
+                -message =>
+"Syntax error. 'destination' required when 'mode' is offline!\n",
+                -exitval => 1,
+                -verbose => 2,
+            );
+        }
+
+        # Module undefined while mode is generate and style is single.
+        if ( $style eq 'single' ) {
+            unless ( $opts->{module} ) {
+                pod2usage(
+                    -message =>
+"Syntax error. 'module' required when 'mode' is offline and 'style' is single!\n",
+                    -exitval => 1,
+                    -verbose => 2,
+                );
+            }
+        }
+
+    }
+
+    # We need at least one schema to work on.
+    unless ( scalar($schema) ) {
+        pod2usage(
+            -message =>
+              "Syntax error. At least one schema required as argument!\n",
+            -exitval => 1,
+            -verbose => 2,
+        );
+    }
+
+    # Everything is OK. Indicate success to the caller.
+    return 1;
 }
 
 ##############################################################################"
@@ -166,44 +176,45 @@ sub validate_opts($) {
 
 #-------------------------------------------------------------
 sub _run_cmd {
-	my ($opts, $cmd) 	= @_;
-	my $verbose 		= $opts->{verbose} || $opts->{debug};
-	my $dryrun			= $opts->{dryrun};
-	my $prompt			= $dryrun ? 'sys  would >  ' : 'sys  cmd >  ';
-	return unless $cmd;
-	
-	print $prompt . $cmd . "\n" if $verbose;	
-	
-	my $output;
-	unless ($dryrun) 	{	$output = `$cmd`;													}
-	else 				{ 	$output = $dryrun ? 'Command NOT executed (dry-run mode)' : eval($cmd); }
-	
-	print "$output\n" if ($output && $verbose > 5);	
-	
+    my ( $opts, $cmd ) = @_;
+    my $verbose = $opts->{verbose} || $opts->{debug};
+    my $dryrun  = $opts->{dryrun};
+    my $prompt  = $dryrun ? 'sys  would >  ' : 'sys  cmd >  ';
+    return unless $cmd;
+
+    print $prompt . $cmd . "\n" if $verbose;
+
+    my $output;
+    unless ($dryrun) { $output = `$cmd`; }
+    else {
+        $output = $dryrun ? 'Command NOT executed (dry-run mode)' : eval($cmd);
+    }
+
+    print "$output\n" if ( $output && $verbose > 5 );
+
 }
 
 #-------------------------------------------------------------
 sub _run_perl {
-	my ($opts, $cmd) 	= @_;
-	my $verbose 		= $opts->{verbose} || $opts->{debug};
-	my $dryrun			= $opts->{dryrun};
-	my $prompt			= $dryrun ? 'perl would >  ' : 'perl cmd >  ';
-	
-	return unless $cmd;
-	
-	print $prompt . $cmd . "\n" if $verbose;
-	
-	my $output;
-	unless ($dryrun) 	{	$output = eval($cmd);													}
-	else 				{ 	$output = $dryrun ? 'Command NOT executed (dry-run mode)' : eval($cmd); }
-	
-	print "$output\n" if ($output && $verbose > 5);	
+    my ( $opts, $cmd ) = @_;
+    my $verbose = $opts->{verbose} || $opts->{debug};
+    my $dryrun  = $opts->{dryrun};
+    my $prompt  = $dryrun ? 'perl would >  ' : 'perl cmd >  ';
+
+    return unless $cmd;
+
+    print $prompt . $cmd . "\n" if $verbose;
+
+    my $output;
+    unless ($dryrun) { $output = eval($cmd); }
+    else {
+        $output = $dryrun ? 'Command NOT executed (dry-run mode)' : eval($cmd);
+    }
+
+    print "$output\n" if ( $output && $verbose > 5 );
 }
 
-
-
 1;
-
 
 __END__
 

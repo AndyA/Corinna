@@ -1,11 +1,10 @@
+package Corinna::Builtin::Union;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #======================================================================
-package Corinna::Builtin::Union;
 
 use Corinna::Builtin::SimpleType;
 
@@ -13,26 +12,27 @@ our @ISA = qw(Corinna::Builtin::SimpleType);
 
 #--------------------------------------------------------------
 sub xml_validate {
-	my $self	= shift;
-	my $path	= shift || '';	
-	my $type	= $self->XmlSchemaType();
-	my $value	= $self->__value;
-	my $members	= $type->memberClasses || [];
-	
-	unless (@$members) {
-		return 1;
-	}
-	
-	foreach my $class (@$members) {
-		if (UNIVERSAL::can($class,"xml_validate")) {		
-			my $object = $class->new(__value => $value);
-			if ($object->xml_validate(@_)) {
-				return 1;
-			}
-		}
-	}
-	
-	die "Pastor : Validate : $path : None of the union members validate value '$value'";
+    my $self    = shift;
+    my $path    = shift || '';
+    my $type    = $self->XmlSchemaType();
+    my $value   = $self->__value;
+    my $members = $type->memberClasses || [];
+
+    unless (@$members) {
+        return 1;
+    }
+
+    foreach my $class (@$members) {
+        if ( UNIVERSAL::can( $class, "xml_validate" ) ) {
+            my $object = $class->new( __value => $value );
+            if ( $object->xml_validate(@_) ) {
+                return 1;
+            }
+        }
+    }
+
+    die
+"Pastor : Validate : $path : None of the union members validate value '$value'";
 }
 
 1;

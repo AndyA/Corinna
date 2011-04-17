@@ -1,10 +1,8 @@
+package Corinna::Meta;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
-
-
-package Corinna::Meta;
 
 use Class::Accessor;
 use Class::Data::Inheritable;
@@ -13,17 +11,16 @@ our @ISA = qw(Class::Accessor Class::Data::Inheritable);
 
 Corinna::Meta->mk_classdata('Model');
 
-
 #----------------------------------------------
 # Accepts a single parameter or a hash.
 # If single parameter, then it is taken to be the value.
 #----------------------------------------------
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self 	= {@_};
-	
-	return bless $self, $class;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
+
+    return bless $self, $class;
 }
 
 1;

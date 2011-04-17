@@ -1,11 +1,10 @@
+package Corinna::Builtin::SimpleType;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #======================================================================
-package Corinna::Builtin::SimpleType;
 
 use Corinna::SimpleType;
 

@@ -1,4 +1,3 @@
-
 package Corinna::Schema::Model;
 use utf8;
 use strict;
@@ -274,9 +273,9 @@ sub _resolve {
 
 #------------------------------------------------------------------
 sub _resolve_object {
-    my $self    = shift;
-    my $object  = shift;
-    my $opts    = shift;
+    my $self   = shift;
+    my $object = shift;
+    my $opts   = shift;
 
     $self->_resolve_object_ref( $object, $opts );
     $self->_resolve_object( $object->definition(), $opts )
@@ -323,7 +322,7 @@ sub _resolve_object_ref {
 
     print STDERR "   Reference is $field\n" if ( $verbose >= 9 );
 
-    my $hash   = $self->{$field};
+    my $hash    = $self->{$field};
     my $ref_key = $object->ref_key;
 
     print STDERR "   Resolving reference for '$ref_key'\n" if ( $verbose >= 9 );

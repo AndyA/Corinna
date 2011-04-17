@@ -1,77 +1,79 @@
+package Corinna::Schema::ComplexType;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #==================================================
-package Corinna::Schema::ComplexType;
 
 use Corinna::Schema::Type;
 
 our @ISA = qw(Corinna::Schema::Type);
 
-Corinna::Schema::ComplexType->mk_accessors(qw(attributes attributeInfo attributePrefix elements elementInfo isSimpleContent xAttributes xAttributeInfo xElements xElementInfo));
+Corinna::Schema::ComplexType->mk_accessors(
+    qw(attributes attributeInfo attributePrefix elements elementInfo isSimpleContent xAttributes xAttributeInfo xElements xElementInfo)
+);
 
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};
-	
-	unless ($self->{attributes}) {
-		$self->{attributes} = [];
-	}
-	unless ($self->{attributeInfo}) {
-		$self->{attributeInfo} = {};
-	}
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
 
-	unless ($self->{elements}) {
-		$self->{elements} = [];
-	}
-	unless ($self->{elementInfo}) {
-		$self->{elementInfo} = {};
-	}
-	unless ($self->{contentType}) {
-		$self->{contentType} = "complex";
-	}
-	
-	unless (defined($self->{attributePrefix})) {
-		$self->{attributePrefix} = "_";	# Default value. No need to change this for now.
-	}
-	
-	return bless $self, $class;
+    unless ( $self->{attributes} ) {
+        $self->{attributes} = [];
+    }
+    unless ( $self->{attributeInfo} ) {
+        $self->{attributeInfo} = {};
+    }
+
+    unless ( $self->{elements} ) {
+        $self->{elements} = [];
+    }
+    unless ( $self->{elementInfo} ) {
+        $self->{elementInfo} = {};
+    }
+    unless ( $self->{contentType} ) {
+        $self->{contentType} = "complex";
+    }
+
+    unless ( defined( $self->{attributePrefix} ) ) {
+        $self->{attributePrefix} =
+          "_";    # Default value. No need to change this for now.
+    }
+
+    return bless $self, $class;
 }
 
 #-----------------------------------------------------------------
-# Return effective attributes, including those that may come from base classes. 
+# Return effective attributes, including those that may come from base classes.
 #-----------------------------------------------------------------
 sub effective_attributes {
-	my $self	= shift;
-	return ($self->xAttributes() || $self->attributes());
+    my $self = shift;
+    return ( $self->xAttributes() || $self->attributes() );
 }
 
 #-----------------------------------------------------------------
-# Return effective attributeInfo, including those that may come from base classes. 
+# Return effective attributeInfo, including those that may come from base classes.
 #-----------------------------------------------------------------
 sub effective_attribute_info {
-	my $self	= shift;
-	return ($self->xAttributeInfo() || $self->attributeInfo());
+    my $self = shift;
+    return ( $self->xAttributeInfo() || $self->attributeInfo() );
 }
 
 #-----------------------------------------------------------------
-# Return effective elements, including those that may come from base classes. 
+# Return effective elements, including those that may come from base classes.
 #-----------------------------------------------------------------
 sub effective_elements {
-	my $self	= shift;
-	return ($self->xElements() || $self->elements());
+    my $self = shift;
+    return ( $self->xElements() || $self->elements() );
 }
 
 #-----------------------------------------------------------------
-# Return effective elementInfo, including those that may come from base classes. 
+# Return effective elementInfo, including those that may come from base classes.
 #-----------------------------------------------------------------
 sub effective_element_info {
-	my $self	= shift;
-	return ($self->xElementInfo() || $self->elementInfo());
+    my $self = shift;
+    return ( $self->xElementInfo() || $self->elementInfo() );
 }
 
 1;

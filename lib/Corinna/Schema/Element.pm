@@ -1,28 +1,27 @@
+package Corinna::Schema::Element;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #===================================================
-package Corinna::Schema::Element;
 
 use Corinna::Schema::Object;
 
 our @ISA = qw(Corinna::Schema::Object);
 
-Corinna::Schema::Element->mk_accessors(qw(baseClasses minOccurs maxOccurs targetNamespace));
-
+Corinna::Schema::Element->mk_accessors(
+    qw(baseClasses minOccurs maxOccurs targetNamespace));
 
 sub is_singleton {
-	my $self = shift;
-	
-	my $maxOccurs = $self->maxOccurs();
-	
-	return 1 unless ($maxOccurs);
-	return 0 if ($maxOccurs eq 'unbounded');
-	return 1 if ($maxOccurs == 1);
-	return 0;			
+    my $self = shift;
+
+    my $maxOccurs = $self->maxOccurs();
+
+    return 1 unless ($maxOccurs);
+    return 0 if ( $maxOccurs eq 'unbounded' );
+    return 1 if ( $maxOccurs == 1 );
+    return 0;
 }
 
 1;

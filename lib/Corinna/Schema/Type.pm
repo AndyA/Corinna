@@ -1,16 +1,16 @@
+package Corinna::Schema::Type;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #================================================================
-package Corinna::Schema::Type;
 use Corinna::Schema::Object;
 
 our @ISA = qw(Corinna::Schema::Object);
 
-Corinna::Schema::Type->mk_accessors(qw(base baseClasses contentType derivedBy final id));
-
+Corinna::Schema::Type->mk_accessors(
+    qw(base baseClasses contentType derivedBy final id));
 
 1;
 

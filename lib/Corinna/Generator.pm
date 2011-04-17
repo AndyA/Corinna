@@ -1,10 +1,10 @@
+package Corinna::Generator;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #=======================================================
-package Corinna::Generator;
 
 use Data::Dumper;
 use IO::File;
@@ -13,14 +13,11 @@ use File::Spec;
 use Class::Accessor;
 use Corinna::Util qw(merge_hash module_path);
 
-our @ISA = qw(Class::Accessor);
-
-#--------------------------------------------
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};	
-	return bless $self, $class;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
+    return bless $self, $class;
 }
 
 #--------------------------------------------
@@ -28,541 +25,591 @@ sub new {
 # argument 'model'.
 #
 # Understands several modes of functioning => generate, eval, return
-# 
+#
 # mode = 'offline' : Generate perl code and write it to one or more module files.
 # mode = 'eval'     : Generate perl code and 'evaluate' it in situ without writing out to any file.
 # mode = 'return'   : Generate perl code and return the resulting string to the caller.
-# 
+#
 # Understands also two styles:
-# style = 'single'	: Generate one big chunk of code with all the packages in it. 
-#						Note that this is the forced case when mode is 'eval' or 'return'
-# style = 'multiple': Generate one chunk of code for each class and write it out to multiple 
-#						module files within the 'destination' directory.
+# style = 'single'  : Generate one big chunk of code with all the packages in it.
+#                       Note that this is the forced case when mode is 'eval' or 'return'
+# style = 'multiple': Generate one chunk of code for each class and write it out to multiple
+#                       module files within the 'destination' directory.
 #----------------------------------------------------------------------
 sub generate {
-	my $self 	= shift;
-	my $args	= {@_};
-	my $model	= $args->{model} or die "Pastor: Code generation requires a 'model'!\n";
-	my $mode	= $args->{mode};
-	if ( ($mode =~ /eval/) || ($mode =~ /return/)) {
-		$args->{style} = "single";	# force single module generation
-	}
-	my $style	= $args->{style};
-	my $destination		= $args->{destination} || '/tmp/lib/perl/';
-	my $verbose	= $self->{verbose} || 0;
-	
-	# If 'destination' doesn't end with a trailing slash, add one.
-	if ($destination && ($destination !~ /\/$/) ) {
-		$destination .= '/';
-	}
-	$args->{destination}= $destination;
+    my $self  = shift;
+    my $args  = {@_};
+    my $model = $args->{model}
+      or die "Pastor: Code generation requires a 'model'!\n";
+    my $mode = $args->{mode};
+    if ( ( $mode =~ /eval/ ) || ( $mode =~ /return/ ) ) {
+        $args->{style} = "single";    # force single module generation
+    }
+    my $style       = $args->{style};
+    my $destination = $args->{destination} || '/tmp/lib/perl/';
+    my $verbose     = $self->{verbose} || 0;
 
-	my $class_prefix = $args->{class_prefix} || '';	
-	while (($class_prefix) && ($class_prefix !~ /::$/)) {
-		$class_prefix .= ':';
-	}
-	$args->{metaModule} 		= $class_prefix . "Pastor::Meta"; 
+    # If 'destination' doesn't end with a trailing slash, add one.
+    if ( $destination && ( $destination !~ /\/$/ ) ) {
+        $destination .= '/';
+    }
+    $args->{destination} = $destination;
 
-	
-	print STDERR "\nGenerating code...\n" if ($verbose >=2);
-	if ($style =~ /single/) {
-		$self->_generate_single(%$args);
-	}else {
-		$self->_generate_multiple(%$args);		
-	}
+    my $class_prefix = $args->{class_prefix} || '';
+    while ( ($class_prefix) && ( $class_prefix !~ /::$/ ) ) {
+        $class_prefix .= ':';
+    }
+    $args->{metaModule} = $class_prefix . "Pastor::Meta";
+
+    print STDERR "\nGenerating code...\n" if ( $verbose >= 2 );
+    if ( $style =~ /single/ ) {
+        $self->_generate_single(%$args);
+    }
+    else {
+        $self->_generate_multiple(%$args);
+    }
 }
 
 #--------------------------------------------
 # Generate a single chunk of code, putting all the classes (packages) into that
-# chunk. Then write to a module file if requested 
+# chunk. Then write to a module file if requested
 # or otherwise evaluate it or just return it (depending on the 'mode')
 sub _generate_single {
-	my $self 	= shift;
-	my $args	= {@_};
-	my $model	= $args->{model};
-	my $mode	= $args->{mode};
-	my $class_prefix = $args->{class_prefix};
-	my $module	= $args->{module} || $class_prefix;		
-	my $code	= $self->_fabricate_prelude(@_);	
-	my $destination		= $args->{destination} || '/tmp/lib/perl/';
-	my $verbose	= $self->{verbose} || 0;
+    my $self         = shift;
+    my $args         = {@_};
+    my $model        = $args->{model};
+    my $mode         = $args->{mode};
+    my $class_prefix = $args->{class_prefix};
+    my $module       = $args->{module} || $class_prefix;
+    my $code         = $self->_fabricate_prelude(@_);
+    my $destination  = $args->{destination} || '/tmp/lib/perl/';
+    my $verbose      = $self->{verbose} || 0;
 
-	foreach my $items ($model->type(), 	$model->element()) {
-		foreach my $name (sort keys %$items) {
-			$code	.= $self->_fabricate_code(@_, object=>$items->{$name});
-		}
-	}
-	
-	$code .= $self->_fabricateHeaderModuleCode(@_);
-	$code .= $self->_fabricate_meta_module_code(@_);
-	
-	# Perl modules must return TRUE
-	$code .= "\n\n1;\n";
-	
-	print STDERR "\n****** CODE STARTS *******" . $code . "\n***** CODE ENDS *****\n" if ($verbose >=9);
-	
-	if ($mode =~ /eval/) {
-		# evaluate the code
-		eval $code;
-		$@ and die "$@\n";		
-	}elsif ($mode =~ /return/) {
-		# just return the code		
-		return $code;
-	}else { 
-		# generate module
-		$destination .= '/' if ($destination && ($destination !~ /\/$/));
-		$class_prefix .= '::' if ($class_prefix && ($class_prefix !~ /::$/));
-		while ($module =~ /:$/) {
-			$module =~ s/:$//;
-		}		
-				
-		my $file	= $module or  die "Pastor:Generator:_generate_single:A 'module' name is required!\n"; 
-		
-		$file 		= $destination .  $file . '.pm';	
-		$file 		=~ s/::/\//g;		
-		$self->_write_code(@_, file=>$file, code=>$code);	
-	}
-	return $self;		
+    foreach my $items ( $model->type(), $model->element() ) {
+        foreach my $name ( sort keys %$items ) {
+            $code .= $self->_fabricate_code( @_, object => $items->{$name} );
+        }
+    }
+
+    $code .= $self->_fabricateHeaderModuleCode(@_);
+    $code .= $self->_fabricate_meta_module_code(@_);
+
+    # Perl modules must return TRUE
+    $code .= "\n\n1;\n";
+
+    print STDERR "\n****** CODE STARTS *******" 
+      . $code
+      . "\n***** CODE ENDS *****\n"
+      if ( $verbose >= 9 );
+
+    if ( $mode =~ /eval/ ) {
+
+        # evaluate the code
+        eval $code;
+        $@ and die "$@\n";
+    }
+    elsif ( $mode =~ /return/ ) {
+
+        # just return the code
+        return $code;
+    }
+    else {
+
+        # generate module
+        $destination .= '/' if ( $destination && ( $destination !~ /\/$/ ) );
+        $class_prefix .= '::'
+          if ( $class_prefix && ( $class_prefix !~ /::$/ ) );
+        while ( $module =~ /:$/ ) {
+            $module =~ s/:$//;
+        }
+
+        my $file = $module
+          or die
+          "Pastor:Generator:_generate_single:A 'module' name is required!\n";
+
+        $file = $destination . $file . '.pm';
+        $file =~ s/::/\//g;
+        $self->_write_code( @_, file => $file, code => $code );
+    }
+    return $self;
 }
 
 #--------------------------------------------
 # Generate a multiple 'modules' of code, one for each class.
-# Then write the code to module files within the 'destination' directory 
+# Then write the code to module files within the 'destination' directory
 sub _generate_multiple {
-	my $self 			= shift;
-	my $args			= {@_};
-	my $model			= $args->{model};
-	my $class_prefix	= $args->{class_prefix}; 	
-	my $module 			= $args->{module} || $class_prefix;
-	my $metaModule		= $args->{metaModule};
-	 
-	my $types	= $model->type();
-	my $destination		= $args->{destination} || '/tmp/lib/perl/';
-	
-	foreach my $items ($model->type(), 	$model->element()) {
-		foreach my $name (sort keys %$items) {
-			my $object 	= $items->{$name};
-			my $code	= $self->_fabricate_code(@_, object=>$object);
-			$code 	   	.= "\n\n__END__\n\n";
-			$code		.=$self->_fabricate_pod(@_, object=>$object);
-		
-			my $file = module_path(module => $object->class(), destination => $destination);	
-			$self->_write_code(@_, file=>$file, code=>$code);
-		}
-	}
+    my $self         = shift;
+    my $args         = {@_};
+    my $model        = $args->{model};
+    my $class_prefix = $args->{class_prefix};
+    my $module       = $args->{module} || $class_prefix;
+    my $metaModule   = $args->{metaModule};
 
-	# META mdoule
-	my $code = $self->_fabricate_meta_module_code(@_);
-	my $file = module_path(module => $metaModule, destination => $destination);				
-	$self->_write_code(@_, file=>$file, code=>$code);
-	
-	
-	# HEADER module
-	if ($module) {
-		# Generate the module with all the 'use' statements for different modules.
-		my $code = $self->_fabricateHeaderModuleCode(@_);
-		
-		my $file = module_path(module => $module, destination => $destination);				
-		$self->_write_code(@_, file=>$file, code=>$code);
-	}
-	
-	return $self;		
+    my $types = $model->type();
+    my $destination = $args->{destination} || '/tmp/lib/perl/';
+
+    foreach my $items ( $model->type(), $model->element() ) {
+        foreach my $name ( sort keys %$items ) {
+            my $object = $items->{$name};
+            my $code = $self->_fabricate_code( @_, object => $object );
+            $code .= "\n\n__END__\n\n";
+            $code .= $self->_fabricate_pod( @_, object => $object );
+
+            my $file = module_path(
+                module      => $object->class(),
+                destination => $destination
+            );
+            $self->_write_code( @_, file => $file, code => $code );
+        }
+    }
+
+    # META mdoule
+    my $code = $self->_fabricate_meta_module_code(@_);
+    my $file =
+      module_path( module => $metaModule, destination => $destination );
+    $self->_write_code( @_, file => $file, code => $code );
+
+    # HEADER module
+    if ($module) {
+
+      # Generate the module with all the 'use' statements for different modules.
+        my $code = $self->_fabricateHeaderModuleCode(@_);
+
+        my $file =
+          module_path( module => $module, destination => $destination );
+        $self->_write_code( @_, file => $file, code => $code );
+    }
+
+    return $self;
 }
-
 
 #--------------------------------------------
 # Fabricate the code for the module that will 'use' all the generated classes.
 #--------------------------------------------
 sub _fabricateHeaderModuleCode {
-	my $self 			= shift;
-	my $args			= {@_};
-	my $model			= $args->{model};
-	my $style			= $args->{style};
-	my $class_prefix	= $args->{class_prefix}; 	
-	my $module 			= $args->{module} || $class_prefix;
-	my $metaModule		= $args->{metaModule}; 
-	my $code;
-		
-	# get ride of any trailing columns.
-	while ($module =~ /:$/) {
-		$module =~ s/:$//;
-	}
-	$code  = _fabricate_prelude(@_) unless ($style =~ /single/i);
-	$code .= "\n\npackage $module;\n";
-	
-	# USE
-	unless ($style =~ /single/i) {
-		foreach my $items ($model->type(), 	$model->element()) {
-			foreach my $name (sort keys %$items) {
-				my $object 	= $items->{$name};
-				my $class	= $object->class();			
-				$code .= "\nuse $class;"
-			}
-		}
-		
-		$code .= "\n\nuse $metaModule;"  if ($metaModule);
-	}
+    my $self         = shift;
+    my $args         = {@_};
+    my $model        = $args->{model};
+    my $style        = $args->{style};
+    my $class_prefix = $args->{class_prefix};
+    my $module       = $args->{module} || $class_prefix;
+    my $metaModule   = $args->{metaModule};
+    my $code;
 
-	# EPILOGUE
-	unless ($style =~ /single/i) {
-		# Perl modules must return TRUE				
-		$code .= "\n\n1;\n";
-	}
-	
-	return $code;		
+    # get ride of any trailing columns.
+    while ( $module =~ /:$/ ) {
+        $module =~ s/:$//;
+    }
+    $code = _fabricate_prelude(@_) unless ( $style =~ /single/i );
+    $code .= "\n\npackage $module;\n";
+
+    # USE
+    unless ( $style =~ /single/i ) {
+        foreach my $items ( $model->type(), $model->element() ) {
+            foreach my $name ( sort keys %$items ) {
+                my $object = $items->{$name};
+                my $class  = $object->class();
+                $code .= "\nuse $class;";
+            }
+        }
+
+        $code .= "\n\nuse $metaModule;" if ($metaModule);
+    }
+
+    # EPILOGUE
+    unless ( $style =~ /single/i ) {
+
+        # Perl modules must return TRUE
+        $code .= "\n\n1;\n";
+    }
+
+    return $code;
 }
-
 
 #--------------------------------------------
 # Fabricate the first prelude stub of code for each module.
 # Needed only in the begining of each physical module file.
 sub _fabricate_prelude {
-	my $self 	= shift;
-	my $code = "";
-	
-	$code .= "\n#PASTOR: Code generated by Corinna/" . Corinna->version() . " at '" . localtime() . "'\n";
-	$code .= "\nuse utf8;";
-	$code .= "\nuse strict;";	
-	$code .= "\nuse warnings;";
-	$code .= "\nno warnings qw(uninitialized);";
+    my $self = shift;
+    my $code = "";
 
-	$code .= "\n\nuse Corinna;\n\n";	
-	return $code;	
+    $code .=
+        "\n#PASTOR: Code generated by Corinna/"
+      . Corinna->version() . " at '"
+      . localtime() . "'\n";
+    $code .= "\nuse utf8;";
+    $code .= "\nuse strict;";
+    $code .= "\nuse warnings;";
+    $code .= "\nno warnings qw(uninitialized);";
+
+    $code .= "\n\nuse Corinna;\n\n";
+    return $code;
 }
 
 #--------------------------------------------
 # Fabricate the code for the META module.
 #--------------------------------------------
 sub _fabricate_meta_module_code {
-	my $self 			= shift;
-	my $args			= {@_};
-	my $model			= $args->{model};
-	my $style			= $args->{style};
-	my $module			= $args->{metaModule};
-	my $isa				= [qw(Corinna::Meta)];
-	my $code			= "";
-		
-	
-	$code  = _fabricate_prelude(@_) unless ($style =~ /single/i);
-	
-	$code .= "\n\npackage $module;\n";
-	
-	# ISA		
-	$code .= "\n\nour " .  '@ISA=qw(' . join (' ', @$isa) . ");";
-	
-	# Model	
-	$code .= "\n\n$module->Model( " ;		
-	$code .= _dump_object($model);
-	$code =~ s/\n$//;
-	$code .=" );";	
+    my $self   = shift;
+    my $args   = {@_};
+    my $model  = $args->{model};
+    my $style  = $args->{style};
+    my $module = $args->{metaModule};
+    my $isa    = [qw(Corinna::Meta)];
+    my $code   = "";
 
-	# EPILOGUE		
-	unless ($style =~ /single/i) {
-		# Perl modules must return TRUE
-		$code .= "\n\n1;\n";
-	}
+    $code = _fabricate_prelude(@_) unless ( $style =~ /single/i );
 
-	return $code;		
+    $code .= "\n\npackage $module;\n";
+
+    # ISA
+    $code .= "\n\nour " . '@ISA=qw(' . join( ' ', @$isa ) . ");";
+
+    # Model
+    $code .= "\n\n$module->Model( ";
+    $code .= _dump_object($model);
+    $code =~ s/\n$//;
+    $code .= " );";
+
+    # EPILOGUE
+    unless ( $style =~ /single/i ) {
+
+        # Perl modules must return TRUE
+        $code .= "\n\n1;\n";
+    }
+
+    return $code;
 }
-
-
-
 
 #--------------------------------------------
 # Fabricate the code for one given class (type).
 # Can work in 'single' or 'multiple' style (knows to distinguish them).
 # Will create code in a separate 'package' section for the class.
 sub _fabricate_code {
-	my $self 	= shift;
-	my $args	= {@_};
-	my $object	= $args->{object} or die "Pastor: _fabricate_code: Need a type!\n";
-	my $style	= $args->{style};	
-	my $class	= $object->class();		
-	my $isa		= $object->baseClasses()  || [];	
-	my $verbose	= $self->{verbose} || 0;
-	my $code	= "";
-	
-	print STDERR "\nFabricating code for class '$class' ..." if ($verbose >= 3);
+    my $self   = shift;
+    my $args   = {@_};
+    my $object = $args->{object}
+      or die "Pastor: _fabricate_code: Need a type!\n";
+    my $style   = $args->{style};
+    my $class   = $object->class();
+    my $isa     = $object->baseClasses() || [];
+    my $verbose = $self->{verbose} || 0;
+    my $code    = "";
 
-	# PRELUDE
-	$code .= $self->_fabricate_prelude(@_) unless ($style =~ /single/i);
+    print STDERR "\nFabricating code for class '$class' ..."
+      if ( $verbose >= 3 );
 
-	# package	
-	$code .= "\n\n#================================================================";
-	$code .= "\n\npackage $class;\n";
+    # PRELUDE
+    $code .= $self->_fabricate_prelude(@_) unless ( $style =~ /single/i );
 
-	# use
-	# in "single" style, we won't need the use clauses because all packages will be in one module.
-	unless ($style =~ /single/i) {	
-		my $uses = $self->_calculate_uses($object, {@_});	
-		foreach my $use (sort keys %$uses) {
-			next if $use eq $class;	# We won't be using ourselves!
-			$code .= "\nuse $use;";
-		}	
-	}
-	
-	# ISA		
-	$code .= "\n\nour " .  '@ISA=qw(' . join (' ', @$isa) . ");";
+    # package
+    $code .=
+      "\n\n#================================================================";
+    $code .= "\n\npackage $class;\n";
 
-	# mk_accessors			
-	my $accessors = [];
-	if (UNIVERSAL::can($object, "attributes")) {
-		my $attribPfx = "";
-		$attribPfx = $object->attributePrefix() if (UNIVERSAL::can($object, "attributePrefix"));
-		my $fields = [map {$attribPfx . $_} @{$object->attributes()}]; 
-		push @$accessors, @$fields;
-	}
-	if (UNIVERSAL::can($object, "elements")) {
-		push @$accessors, @{$object->elements()};
-	}
-	if ( scalar(@$accessors) ) {
-		$code .= "\n\n$class". '->mk_accessors( qw(' . join (' ', @$accessors) . "));";
-	}
+# use
+# in "single" style, we won't need the use clauses because all packages will be in one module.
+    unless ( $style =~ /single/i ) {
+        my $uses = $self->_calculate_uses( $object, {@_} );
+        foreach my $use ( sort keys %$uses ) {
+            next if $use eq $class;    # We won't be using ourselves!
+            $code .= "\nuse $use;";
+        }
+    }
 
-	
-	# Attribute accessor aliases
-	if (UNIVERSAL::can($object, "attributes")) {
-		my $attributes = $object->attributes(); 
-		my $attribPfx 	= (UNIVERSAL::can($object, "attributePrefix")) ? $object->attributePrefix() : "";
-		
-		if (scalar(@$attributes) && $attribPfx) {
-			$code .= "\n\n# Attribute accessor aliases\n";
-			my $elementInfo	= (UNIVERSAL::can($object, "effective_element_info")) ? $object->effective_element_info() : {};		
-			foreach my $attribute (@$attributes) {
-				next if defined($elementInfo->{$attribute});		# Attribute/Element name conflict. No alias possible
-				my $field = $attribPfx . $attribute;
-				next if ($field eq $attribute);					# No attribute prefix. No need for an alias.
-				$code .= "\nsub $attribute { &" . $field . '; }';
-			}		
-						
-		}
-		
-	}
-	
-	
-	# XmlSchemaInfo	
-	if (UNIVERSAL::isa($object, "Corinna::Schema::Element")) {
-		$code .= "\n\n$class->XmlSchemaElement( " ;		
-	}else {		
-		$code .= "\n\n$class->XmlSchemaType( " ;
-	}
-	$code .= _dump_object($object);
-	$code =~ s/\n$//;
-	$code .=" );";	
+    # ISA
+    $code .= "\n\nour " . '@ISA=qw(' . join( ' ', @$isa ) . ");";
 
+    # mk_accessors
+    my $accessors = [];
+    if ( UNIVERSAL::can( $object, "attributes" ) ) {
+        my $attribPfx = "";
+        $attribPfx = $object->attributePrefix()
+          if ( UNIVERSAL::can( $object, "attributePrefix" ) );
+        my $fields = [ map { $attribPfx . $_ } @{ $object->attributes() } ];
+        push @$accessors, @$fields;
+    }
+    if ( UNIVERSAL::can( $object, "elements" ) ) {
+        push @$accessors, @{ $object->elements() };
+    }
+    if ( scalar(@$accessors) ) {
+        $code .=
+            "\n\n$class"
+          . '->mk_accessors( qw('
+          . join( ' ', @$accessors ) . "));";
+    }
 
-	# EPILOGUE		
-	unless ($style =~ /single/i) {
-		# Perl modules must return TRUE
-		$code .= "\n\n1;\n";
-	}
+    # Attribute accessor aliases
+    if ( UNIVERSAL::can( $object, "attributes" ) ) {
+        my $attributes = $object->attributes();
+        my $attribPfx =
+          ( UNIVERSAL::can( $object, "attributePrefix" ) )
+          ? $object->attributePrefix()
+          : "";
 
-	return $code;
-}	
+        if ( scalar(@$attributes) && $attribPfx ) {
+            $code .= "\n\n# Attribute accessor aliases\n";
+            my $elementInfo =
+              ( UNIVERSAL::can( $object, "effective_element_info" ) )
+              ? $object->effective_element_info()
+              : {};
+            foreach my $attribute (@$attributes) {
+                next
+                  if defined( $elementInfo->{$attribute} )
+                ;    # Attribute/Element name conflict. No alias possible
+                my $field = $attribPfx . $attribute;
+                next
+                  if ( $field eq $attribute )
+                  ;    # No attribute prefix. No need for an alias.
+                $code .= "\nsub $attribute { &" . $field . '; }';
+            }
+
+        }
+
+    }
+
+    # XmlSchemaInfo
+    if ( UNIVERSAL::isa( $object, "Corinna::Schema::Element" ) ) {
+        $code .= "\n\n$class->XmlSchemaElement( ";
+    }
+    else {
+        $code .= "\n\n$class->XmlSchemaType( ";
+    }
+    $code .= _dump_object($object);
+    $code =~ s/\n$//;
+    $code .= " );";
+
+    # EPILOGUE
+    unless ( $style =~ /single/i ) {
+
+        # Perl modules must return TRUE
+        $code .= "\n\n1;\n";
+    }
+
+    return $code;
+}
 
 #--------------------------------------------
 # Figure out the classes that need to be 'used' by a given class.
-# This is needed to create the 'use' stubs in code generation. 
+# This is needed to create the 'use' stubs in code generation.
 sub _calculate_uses {
-	my $self 	= shift;
-	my $object	= shift; 
-	my $opts	= shift;
-	my $result 	= {};
-	
-	if (UNIVERSAL::can($object, "class") && $object->class()) {
-		my $class = $object->class();
-		
-		# Consider the class as 'used' unless it starts with Corinna which is handled differently
-		# But Corinna::Test::* are used for testing purposes. 
-		SWITCH: {
-			(($class =~ /^Corinna::/) && 
-			($class !~ /^Corinna::Test/))				and do {last SWITCH;};
-			OTHERWISE:										{ $result->{$class}=1; last SWITCH;}			
-		}		
-		
-	}
+    my $self   = shift;
+    my $object = shift;
+    my $opts   = shift;
+    my $result = {};
 
-	if (UNIVERSAL::can($object, "itemClass") && $object->itemClass()) {
-		my $class = $object->itemClass();
-		
-		# Consider the class as 'used' unless it starts with Corinna which is handled differently
-		# But Corinna::Test::* are used for testing purposes. 
-		SWITCH: {
-			(($class =~ /^Corinna::/) && 
-			($class !~ /^Corinna::Test/))				and do {last SWITCH;};
-			OTHERWISE:										{ $result->{$class}=1; last SWITCH;}			
-						
-		}		
-		
-	}
+    if ( UNIVERSAL::can( $object, "class" ) && $object->class() ) {
+        my $class = $object->class();
 
-	if (UNIVERSAL::can($object, "baseClasses") && $object->baseClasses()) {
-		my $isa = $object->baseClasses();
-		foreach my $class (@$isa) {		
-			# Consider the class as 'used' unless it starts with Corinna which is handled differently
-			# But Corinna::Test::* are used for testing purposes. 
-			SWITCH: {
-				(($class =~ /^Corinna::/) && 
-				($class !~ /^Corinna::Test/))				and do {last SWITCH;};
-				OTHERWISE:										{ $result->{$class}=1; last SWITCH;}							
-			}		
-		}
-	}
+# Consider the class as 'used' unless it starts with Corinna which is handled differently
+# But Corinna::Test::* are used for testing purposes.
+      SWITCH: {
+            ( ( $class =~ /^Corinna::/ ) && ( $class !~ /^Corinna::Test/ ) )
+              and do { last SWITCH; };
+          OTHERWISE: { $result->{$class} = 1; last SWITCH; }
+        }
 
-	if (UNIVERSAL::can($object, "memberClasses") && $object->memberClasses()) {
-		my $mbcs = $object->memberClasses();
-		foreach my $class (@$mbcs) {		
-			# Consider the class as 'used' unless it starts with Corinna which is handled differently
-			# But Corinna::Test::* are used for testing purposes. 
-			SWITCH: {
-				(($class =~ /^Corinna::/) && 
-				($class !~ /^Corinna::Test/))				and do {last SWITCH;};
-				OTHERWISE:										{ $result->{$class}=1; last SWITCH;}			
-				
-			}		
-		}
-	}
-	
-	
-	if (UNIVERSAL::can($object, "definition") && $object->definition()) {
-			merge_hash($result, $self->_calculate_uses($object->definition(), $opts));
-	}
+    }
 
-	if (UNIVERSAL::can($object, "attributeInfo")) {
-		foreach my $attrib  (values %{$object->attributeInfo()} ){
-			merge_hash($result, $self->_calculate_uses($attrib, $opts));
-		}
-	}
+    if ( UNIVERSAL::can( $object, "itemClass" ) && $object->itemClass() ) {
+        my $class = $object->itemClass();
 
-	if (UNIVERSAL::can($object, "elementInfo")) {
-		foreach my $elem  (values %{$object->elementInfo()} ){
-			merge_hash($result, $self->_calculate_uses($elem, $opts));
-		}
-	}
-	
-	return $result;
+# Consider the class as 'used' unless it starts with Corinna which is handled differently
+# But Corinna::Test::* are used for testing purposes.
+      SWITCH: {
+            ( ( $class =~ /^Corinna::/ ) && ( $class !~ /^Corinna::Test/ ) )
+              and do { last SWITCH; };
+          OTHERWISE: { $result->{$class} = 1; last SWITCH; }
+
+        }
+
+    }
+
+    if ( UNIVERSAL::can( $object, "baseClasses" ) && $object->baseClasses() ) {
+        my $isa = $object->baseClasses();
+        foreach my $class (@$isa) {
+
+# Consider the class as 'used' unless it starts with Corinna which is handled differently
+# But Corinna::Test::* are used for testing purposes.
+          SWITCH: {
+                ( ( $class =~ /^Corinna::/ ) && ( $class !~ /^Corinna::Test/ ) )
+                  and do { last SWITCH; };
+              OTHERWISE: { $result->{$class} = 1; last SWITCH; }
+            }
+        }
+    }
+
+    if ( UNIVERSAL::can( $object, "memberClasses" )
+        && $object->memberClasses() )
+    {
+        my $mbcs = $object->memberClasses();
+        foreach my $class (@$mbcs) {
+
+# Consider the class as 'used' unless it starts with Corinna which is handled differently
+# But Corinna::Test::* are used for testing purposes.
+          SWITCH: {
+                ( ( $class =~ /^Corinna::/ ) && ( $class !~ /^Corinna::Test/ ) )
+                  and do { last SWITCH; };
+              OTHERWISE: { $result->{$class} = 1; last SWITCH; }
+
+            }
+        }
+    }
+
+    if ( UNIVERSAL::can( $object, "definition" ) && $object->definition() ) {
+        merge_hash( $result,
+            $self->_calculate_uses( $object->definition(), $opts ) );
+    }
+
+    if ( UNIVERSAL::can( $object, "attributeInfo" ) ) {
+        foreach my $attrib ( values %{ $object->attributeInfo() } ) {
+            merge_hash( $result, $self->_calculate_uses( $attrib, $opts ) );
+        }
+    }
+
+    if ( UNIVERSAL::can( $object, "elementInfo" ) ) {
+        foreach my $elem ( values %{ $object->elementInfo() } ) {
+            merge_hash( $result, $self->_calculate_uses( $elem, $opts ) );
+        }
+    }
+
+    return $result;
 }
 
 #--------------------------------------------
 # Fabricate the POD for one given class (type).
 #--------------------------------------------
 sub _fabricate_pod {
-	my $self 	= shift;
-	my $args	= {@_};
-	my $object	= $args->{object} or die "Pastor: _fabricate_pod: Need a type!\n";
-	my $style	= $args->{style};	
-	my $class	= $object->class();		
-	my $isa		= $object->baseClasses()  || [];	
-	my $verbose	= $self->{verbose} || 0;
-	my $pod	= "";
-	
-	print STDERR "\nFabricating POD for class '$class' ..." if ($verbose >= 3);
+    my $self   = shift;
+    my $args   = {@_};
+    my $object = $args->{object}
+      or die "Pastor: _fabricate_pod: Need a type!\n";
+    my $style   = $args->{style};
+    my $class   = $object->class();
+    my $isa     = $object->baseClasses() || [];
+    my $verbose = $self->{verbose} || 0;
+    my $pod     = "";
 
-	# NAME	
-	$pod .= "\n\n=head1 NAME\n\nB<$class>  -  A class generated by L<Corinna> . \n";
+    print STDERR "\nFabricating POD for class '$class' ..."
+      if ( $verbose >= 3 );
 
-	# DESCRIPTION
-	if (defined $object->documentation) {
-		$pod .= "\n\n=head1 DESCRIPTION\n";
-		foreach my $doc (@{$object->documentation}) {
-			my $text = $doc->text;
-			$text =~ s/^\s+//;	# chop leading space.
-			$pod .= "\n" . $text . "\n";
-		}
-	}
-	
-	
-	# ISA
-	$pod .= "\n\n=head1 ISA\n\nThis class descends from " . join(', ', map {"L<$_>"} @$isa) . ".\n";
-	
-	# CODE GENERATION
-	$pod .= "\n\n=head1 CODE GENERATION\n\nThis module was automatically generated by L<Corinna> version " . $Corinna::VERSION . " at '" . localtime() . "'\n";
-	
-	# ATTRIBUTE Accessors			
-	if (UNIVERSAL::can($object, "attributes") && scalar(@{$object->attributes})) {
-		my $attributes = $object->attributes();
-		my $attribPfx = "";
-		$attribPfx = $object->attributePrefix() if (UNIVERSAL::can($object, "attributePrefix"));
-		my $attribInfo = $object->effective_attribute_info();
-		my $elementInfo = UNIVERSAL::can($object, 'effective_element_info') ? $object->effective_element_info() : {};
-		
-		$pod .= "\n\n=head1 ATTRIBUTE ACCESSORS\n";
-		$pod .= "\n=over\n";
-		
-		foreach my $attribute_name (sort @$attributes) {
-			my $accessor    = $attribPfx . $attribute_name;
-			my $attrib  	= $attribInfo->{$attribute_name};
-			next unless (defined $attrib);
-			
-			$pod .= "\n=item B<$accessor>()";
-			
-			# Attribute accessor alias (if there is no conflict with an element name)
-			unless (exists($elementInfo->{$attribute_name})) {
-				$pod .= ", B<$attribute_name>()";
-			}	 
-			
-			my $aclass		= $attrib->class;
-			if (defined $aclass) {			
-				$pod .= "      - See L<$aclass>.";
-			}
-			
-			$pod .= "\n";
-		}
-		$pod .= "\n=back\n";				
-	}
-	
-	
-	# CHILD ELEMENT accessors
-	if (UNIVERSAL::can($object, "elements") && scalar(@{$object->elements})) {
-		my $elementInfo = $object->effective_element_info();
+    # NAME
+    $pod .=
+      "\n\n=head1 NAME\n\nB<$class>  -  A class generated by L<Corinna> . \n";
 
-		$pod .= "\n\n=head1 CHILD ELEMENT ACCESSORS\n";
-		$pod .= "\n=over\n";
-				
-		foreach my $accessor (sort @{$object->elements()}) {
-			my $element = $elementInfo->{$accessor};
-			next unless (defined $element);
+    # DESCRIPTION
+    if ( defined $object->documentation ) {
+        $pod .= "\n\n=head1 DESCRIPTION\n";
+        foreach my $doc ( @{ $object->documentation } ) {
+            my $text = $doc->text;
+            $text =~ s/^\s+//;    # chop leading space.
+            $pod .= "\n" . $text . "\n";
+        }
+    }
 
-			$pod .= "\n=item B<$accessor>()";
-			my $aclass		= $element->class;
-			if (defined $aclass) {			
-				$pod .= "      - See L<$aclass>.";
-			}
-			
-			$pod .= "\n";
-			
-		}
-		$pod .= "\n=back\n";	
-	}
-	
-	# SEE ALSO		
-	my @see_also = (@$isa, 'Corinna', 'Corinna::Type', 'Corinna::ComplexType', 'Corinna::SimpleType');
-	@see_also  = map {"L<$_>"} @see_also;
-	
-	$pod .= "\n\n=head1 SEE ALSO\n\n";
-	$pod .= join (", ", @see_also);
-	$pod .= "\n";
-	
-	# EPILOGUE		
-	$pod .= "\n\n=cut\n";
-	
-	 		
-	return $pod;
-}	
+    # ISA
+    $pod .= "\n\n=head1 ISA\n\nThis class descends from "
+      . join( ', ', map { "L<$_>" } @$isa ) . ".\n";
 
+    # CODE GENERATION
+    $pod .=
+"\n\n=head1 CODE GENERATION\n\nThis module was automatically generated by L<Corinna> version "
+      . $Corinna::VERSION . " at '"
+      . localtime() . "'\n";
+
+    # ATTRIBUTE Accessors
+    if ( UNIVERSAL::can( $object, "attributes" )
+        && scalar( @{ $object->attributes } ) )
+    {
+        my $attributes = $object->attributes();
+        my $attribPfx  = "";
+        $attribPfx = $object->attributePrefix()
+          if ( UNIVERSAL::can( $object, "attributePrefix" ) );
+        my $attribInfo = $object->effective_attribute_info();
+        my $elementInfo =
+          UNIVERSAL::can( $object, 'effective_element_info' )
+          ? $object->effective_element_info()
+          : {};
+
+        $pod .= "\n\n=head1 ATTRIBUTE ACCESSORS\n";
+        $pod .= "\n=over\n";
+
+        foreach my $attribute_name ( sort @$attributes ) {
+            my $accessor = $attribPfx . $attribute_name;
+            my $attrib   = $attribInfo->{$attribute_name};
+            next unless ( defined $attrib );
+
+            $pod .= "\n=item B<$accessor>()";
+
+       # Attribute accessor alias (if there is no conflict with an element name)
+            unless ( exists( $elementInfo->{$attribute_name} ) ) {
+                $pod .= ", B<$attribute_name>()";
+            }
+
+            my $aclass = $attrib->class;
+            if ( defined $aclass ) {
+                $pod .= "      - See L<$aclass>.";
+            }
+
+            $pod .= "\n";
+        }
+        $pod .= "\n=back\n";
+    }
+
+    # CHILD ELEMENT accessors
+    if ( UNIVERSAL::can( $object, "elements" )
+        && scalar( @{ $object->elements } ) )
+    {
+        my $elementInfo = $object->effective_element_info();
+
+        $pod .= "\n\n=head1 CHILD ELEMENT ACCESSORS\n";
+        $pod .= "\n=over\n";
+
+        foreach my $accessor ( sort @{ $object->elements() } ) {
+            my $element = $elementInfo->{$accessor};
+            next unless ( defined $element );
+
+            $pod .= "\n=item B<$accessor>()";
+            my $aclass = $element->class;
+            if ( defined $aclass ) {
+                $pod .= "      - See L<$aclass>.";
+            }
+
+            $pod .= "\n";
+
+        }
+        $pod .= "\n=back\n";
+    }
+
+    # SEE ALSO
+    my @see_also = (
+        @$isa, 'Corinna', 'Corinna::Type', 'Corinna::ComplexType',
+        'Corinna::SimpleType'
+    );
+    @see_also = map { "L<$_>" } @see_also;
+
+    $pod .= "\n\n=head1 SEE ALSO\n\n";
+    $pod .= join( ", ", @see_also );
+    $pod .= "\n";
+
+    # EPILOGUE
+    $pod .= "\n\n=cut\n";
+
+    return $pod;
+}
 
 #--------------------------------------------
-# Dump the data for a given "schema type". 
-# Note the use of "Deepcopy"  and "Terse" 
-# in order to avoid having references in the dumped structure. 
+# Dump the data for a given "schema type".
+# Note the use of "Deepcopy"  and "Terse"
+# in order to avoid having references in the dumped structure.
 # So we have a clean structure with eventual duplication of data but witout references.
 sub _dump_object {
-	my $object = shift;
-	my $d	 = Data::Dumper->new([$object]);
-	$d->Sortkeys(1);	
-	$d->Deepcopy(1);
-	$d->Terse(1);	 
-	return $d->Dump();
+    my $object = shift;
+    my $d = Data::Dumper->new( [$object] );
+    $d->Sortkeys(1);
+    $d->Deepcopy(1);
+    $d->Terse(1);
+    return $d->Dump();
 }
 
 #--------------------------------------------
@@ -570,21 +617,22 @@ sub _dump_object {
 # Used for writing out the code to the output module files.
 # Works for both 'single' and 'multiple' style
 sub _write_code {
-	my $self 	= shift;
-	my $args	= {@_};
-	my $code	= $args->{code} || "";
-	my $file	= $args->{file} or die "Pastor : Generator : _write_code : requires a file name\n";
-	my $verbose	= $self->{verbose} || 0;
-	
-	print STDERR "\nWriting module '$file' ..." if ($verbose >=2);
-	my ($volume,$directories,$filebase) = File::Spec->splitpath( $file );
-	File::Path::mkpath($volume.$directories);
-	my $handle  = IO::File->new($file, "w") or die "Pastor : Generator : _write_code : Can't open file : $file\n";
-	
-	print $handle $code;
-	$handle->close();
-}	
+    my $self = shift;
+    my $args = {@_};
+    my $code = $args->{code} || "";
+    my $file = $args->{file}
+      or die "Pastor : Generator : _write_code : requires a file name\n";
+    my $verbose = $self->{verbose} || 0;
 
+    print STDERR "\nWriting module '$file' ..." if ( $verbose >= 2 );
+    my ( $volume, $directories, $filebase ) = File::Spec->splitpath($file);
+    File::Path::mkpath( $volume . $directories );
+    my $handle = IO::File->new( $file, "w" )
+      or die "Pastor : Generator : _write_code : Can't open file : $file\n";
+
+    print $handle $code;
+    $handle->close();
+}
 
 1;
 
@@ -655,8 +703,8 @@ the newly created object.
 
 =head4 generate()
 
-	$generator->generate(%options);
-	
+    $generator->generate(%options);
+    
 This is the heart of the module. This method will generate Perl code (either in a single module or multiple modules) and
 either write the code to module file(s) on disk or evaluate the generated code according to the parameters passed.
 
@@ -701,13 +749,13 @@ generate your modules to be later installed by 'B<make install>'. This is very s
 This way your XSD schemas don't have to be accessible during run-time and you don't have a performance penalty.
 
   # Generate MULTIPLE modules, one module for each class, and put them under destination.  
-  my $generator = Corinna::Generator->new();	  
-  $generator->generate(	
-  			mode =>'offline',
-  			style => 'multiple',
-			model=>$model, 
-			destination=>'/tmp/lib/perl/', 							
-			);  
+  my $generator = Corinna::Generator->new();      
+  $generator->generate( 
+            mode =>'offline',
+            style => 'multiple',
+            model=>$model, 
+            destination=>'/tmp/lib/perl/',                          
+            );  
 
 =item eval 
 
@@ -722,11 +770,11 @@ the generated classes perform the same as if they were generated offline.
 Note that 'I<eval>' mode forces the L</style> parameter to have a value of 'I<single>';
 
   # Generate classes in MEMORY, and EVALUATE the generated code on the fly.  
-  my $generator = Corinna::Generator->new();	    
-  $pastor->generate(	
-    		mode =>'eval',
-			model=>$model, 
-			);  
+  my $generator = Corinna::Generator->new();        
+  $pastor->generate(    
+            mode =>'eval',
+            model=>$model, 
+            );  
 
 =item return 
 

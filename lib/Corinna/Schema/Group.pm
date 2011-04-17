@@ -1,32 +1,31 @@
+package Corinna::Schema::Group;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #===================================================
-package Corinna::Schema::Group;
 use Corinna::Schema::Object;
 our @ISA = qw(Corinna::Schema::Object);
 
 Corinna::Schema::Group->mk_accessors(qw(elements elementInfo));
 
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};
-	
-	unless ($self->{elements}) {
-		$self->{elements} = [];
-	}
-	unless ($self->{elementInfo}) {
-		$self->{elementInfo} = {};
-	}
-	unless ($self->{contentType}) {
-		$self->{contentType} = "group";
-	}
-	
-	return bless $self, $class;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
+
+    unless ( $self->{elements} ) {
+        $self->{elements} = [];
+    }
+    unless ( $self->{elementInfo} ) {
+        $self->{elementInfo} = {};
+    }
+    unless ( $self->{contentType} ) {
+        $self->{contentType} = "group";
+    }
+
+    return bless $self, $class;
 }
 
 1;

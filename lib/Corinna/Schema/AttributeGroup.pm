@@ -1,11 +1,10 @@
+package Corinna::Schema::AttributeGroup;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #=================================================
-package Corinna::Schema::AttributeGroup;
 
 use Corinna::Schema::Object;
 
@@ -14,21 +13,21 @@ our @ISA = qw(Corinna::Schema::Object);
 Corinna::Schema::AttributeGroup->mk_accessors(qw(attributes attributeInfo));
 
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};
-	
-	unless ($self->{attributes}) {
-		$self->{attributes} = [];
-	}
-	unless ($self->{attributeInfo}) {
-		$self->{attributeInfo} = {};
-	}
-	unless ($self->{contentType}) {
-		$self->{contentType} = "attributeGroup";
-	}
-	
-	return bless $self, $class;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
+
+    unless ( $self->{attributes} ) {
+        $self->{attributes} = [];
+    }
+    unless ( $self->{attributeInfo} ) {
+        $self->{attributeInfo} = {};
+    }
+    unless ( $self->{contentType} ) {
+        $self->{contentType} = "attributeGroup";
+    }
+
+    return bless $self, $class;
 }
 
 1;

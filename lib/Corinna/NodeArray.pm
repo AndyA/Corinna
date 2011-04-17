@@ -1,19 +1,17 @@
+package Corinna::NodeArray;
+
 use utf8;
 use strict;
 use warnings;
-no warnings qw(uninitialized);
-
 
 #========================================================
-package Corinna::NodeArray;
 use Data::HashArray;
 our @ISA = qw(Data::HashArray);
 
 use vars qw($VERSION);
-$VERSION	= '1.0.1';
+$VERSION = '1.0.1';
 
 1;
-
 
 __END__
 

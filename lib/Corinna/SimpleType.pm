@@ -1,204 +1,222 @@
+package Corinna::SimpleType;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #======================================================
-package Corinna::SimpleType;
 
 use XML::LibXML;
 use Corinna::Type;
 
 use Scalar::Util qw(reftype);
-use Corinna::Util  qw(get_attribute_hash get_children_hash_dom);
+use Corinna::Util qw(get_attribute_hash get_children_hash_dom);
 
 our @ISA = qw(Corinna::Type);
-
-
-
-
 
 #----------------------------------------------
 # xml_validate_value
 #----------------------------------------------
 sub xml_validate_value {
-	my $self 	= shift;
-	my $path	= shift || '';	
-	my $type	= $self->XmlSchemaType();
-	my $value	= $self->__value;
-	    $value	= $self->normalize_whitespace($value);
+    my $self  = shift;
+    my $path  = shift || '';
+    my $type  = $self->XmlSchemaType();
+    my $value = $self->__value;
+    $value = $self->normalize_whitespace($value);
 
-	unless (defined $type) {
-		return ($self->xml_validate_further(@_) && $self->xml_validate_ancestors(@_));			
-	}
-	
-	if (defined(my $prop = $type->length)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $len (@$prop) {
-			($len == length($value)) or die "Pastor : Validate : $path : Length must be exactly '$len' for value '$value'";
-		}				
-	}
+    unless ( defined $type ) {
+        return ( $self->xml_validate_further(@_)
+              && $self->xml_validate_ancestors(@_) );
+    }
 
-	if (defined(my $prop = $type->minLength)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $minLen (@$prop) {
-			(length($value) >= $minLen) or die "Pastor : Validate : $path : Length must be minimum '$minLen' for value '$value'";
-		}				
-	}
-	
-	if (defined(my $prop = $type->maxLength)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $maxLen (@$prop) {
-			(length($value) <= $maxLen) or die "Pastor : Validate : $path : Length must be maximum '$maxLen' for value '$value'";
-		}				
-	}
-	
-	if (defined(my $prop = $type->regex)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		my $pass=0;
-		foreach my $regex (@$prop) {
-			if ($value =~ /$regex/) {
-				$pass =1;
-				last;
-			}
-		}				
-		$pass or die "Pastor : Validate : $path : Value does not match any of the given regexes. Value is '$value'";
-	}
+    if ( defined( my $prop = $type->length ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $len (@$prop) {
+            ( $len == length($value) )
+              or die
+"Corinna : Validate : $path : Length must be exactly '$len' for value '$value'";
+        }
+    }
 
-	if (defined(my $prop = $type->pattern)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		my $pass=0;
-		foreach my $pattern (@$prop) {
-			if ($value =~ /$pattern/) {
-				$pass =1;
-				last;
-			}
-		}				
-		$pass or die "Pastor : Validate : $path : Value does not match any of the given patterns. Value is '$value'";
-	}
-	
+    if ( defined( my $prop = $type->minLength ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $minLen (@$prop) {
+            ( length($value) >= $minLen )
+              or die
+"Corinna : Validate : $path : Length must be minimum '$minLen' for value '$value'";
+        }
+    }
 
-	if (defined(my $enumeration = $type->enumeration)) {
-		(exists $enumeration->{$value}) or die "Pastor : Validate : $path : Not in the permitted enumeration : value '$value'";
-	}
-	
-	
-	if (defined(my $prop = $type->minInclusive)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $min (@$prop) {
-			($value >= $min) or die "Pastor : Validate : $path : Value must be at least (minimum) '$min' : But value is '$value'";
-		}				
-	}
-	
-	if (defined(my $prop = $type->maxInclusive)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $max (@$prop) {
-			($value <= $max) or die "Pastor : Validate : $path : Value must be at most (maximum) '$max' : But value is '$value'";
-		}				
-	}
+    if ( defined( my $prop = $type->maxLength ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $maxLen (@$prop) {
+            ( length($value) <= $maxLen )
+              or die
+"Corinna : Validate : $path : Length must be maximum '$maxLen' for value '$value'";
+        }
+    }
 
-	if (defined(my $prop = $type->minExclusive)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $min (@$prop) {
-			($value > $min) or die "Pastor : Validate : $path : Value must be greater than '$min' : But value is '$value'";
-		}				
-	}
-	
-	if (defined(my $prop = $type->maxExclusive)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $max (@$prop) {
-			($value < $max) or die "Pastor : Validate : $path : Value must be less than '$max' : But value is '$value'";
-		}				
-	}
+    if ( defined( my $prop = $type->regex ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        my $pass = 0;
+        foreach my $regex (@$prop) {
+            if ( $value =~ /$regex/ ) {
+                $pass = 1;
+                last;
+            }
+        }
+        $pass
+          or die
+"Corinna : Validate : $path : Value does not match any of the given regexes. Value is '$value'";
+    }
 
+    if ( defined( my $prop = $type->pattern ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        my $pass = 0;
+        foreach my $pattern (@$prop) {
+            if ( $value =~ /$pattern/ ) {
+                $pass = 1;
+                last;
+            }
+        }
+        $pass
+          or die
+"Corinna : Validate : $path : Value does not match any of the given patterns. Value is '$value'";
+    }
 
-	# Digits part is shamelessly copied from XML::Validator::Schema by Sam Tregar
-   if (defined($type->totalDigits) || defined($type->fractionDigits)) {
+    if ( defined( my $enumeration = $type->enumeration ) ) {
+        ( exists $enumeration->{$value} )
+          or die
+"Corinna : Validate : $path : Not in the permitted enumeration : value '$value'";
+    }
+
+    if ( defined( my $prop = $type->minInclusive ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $min (@$prop) {
+            ( $value >= $min )
+              or die
+"Corinna : Validate : $path : Value must be at least (minimum) '$min' : But value is '$value'";
+        }
+    }
+
+    if ( defined( my $prop = $type->maxInclusive ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $max (@$prop) {
+            ( $value <= $max )
+              or die
+"Corinna : Validate : $path : Value must be at most (maximum) '$max' : But value is '$value'";
+        }
+    }
+
+    if ( defined( my $prop = $type->minExclusive ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $min (@$prop) {
+            ( $value > $min )
+              or die
+"Corinna : Validate : $path : Value must be greater than '$min' : But value is '$value'";
+        }
+    }
+
+    if ( defined( my $prop = $type->maxExclusive ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $max (@$prop) {
+            ( $value < $max )
+              or die
+"Corinna : Validate : $path : Value must be less than '$max' : But value is '$value'";
+        }
+    }
+
+   # Digits part is shamelessly copied from XML::Validator::Schema by Sam Tregar
+    if ( defined( $type->totalDigits ) || defined( $type->fractionDigits ) ) {
+
         # strip leading and trailing zeros for numeric constraints
         my $digits = $value;
-        $digits  =~ s/^([+-]?)0*(\d*\.?\d*?)0*$/$1$2/g;
+        $digits =~ s/^([+-]?)0*(\d*\.?\d*?)0*$/$1$2/g;
 
-        if (defined(my $prop=$type->totalDigits)) {
-			$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];        	
+        if ( defined( my $prop = $type->totalDigits ) ) {
+            $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
             foreach my $tdigits (@$prop) {
-                die "Pastor : Validate : $path : Value has more total digits than the allowed '$tdigits'"
+                die
+"Corinna : Validate : $path : Value has more total digits than the allowed '$tdigits'"
                   if $digits =~ tr!0-9!! > $tdigits;
             }
         }
 
-        if (defined(my $prop=$type->fractionDigits)) {
-			$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];        	        	
+        if ( defined( my $prop = $type->fractionDigits ) ) {
+            $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
             foreach my $fdigits (@$prop) {
-                die "Pastor : Validate : $path : Value has more fraction digits than the allowed '$fdigits'"            	
+                die
+"Corinna : Validate : $path : Value has more fraction digits than the allowed '$fdigits'"
                   if $digits =~ /\.\d{$fdigits}\d/;
             }
-        }        
+        }
     }
 
-	
-	return 1;	
+    return 1;
 }
-
-
 
 #-----------------------------------------------------------------------------
 # By default, this just returns TRUE. But it could be overriden by descendants (like 'date').
 #-----------------------------------------------------------------------------
 sub xml_validate_further {
-	return 1;
+    return 1;
 }
-
 
 #-----------------------------------------------------------------------------
 # Validate the ancestors. Base classes need to be validated.
 #-----------------------------------------------------------------------------
 sub xml_validate_ancestors {
-	my $self	= shift;
-	my $value	= $self->__value;
-	my @ancestors = $self->get_ancestors();
-		
-	foreach my $class (@ancestors) {
-		next unless (UNIVERSAL::can($class, 'new') && UNIVERSAL::can($class, 'xml_validate'));
-		
-		my $obj=$class->new(__value => $value);
-		return 0 unless $obj->xml_validate(@_);
-	}
-	
-	return 1;
+    my $self      = shift;
+    my $value     = $self->__value;
+    my @ancestors = $self->get_ancestors();
+
+    foreach my $class (@ancestors) {
+        next
+          unless ( UNIVERSAL::can( $class, 'new' )
+            && UNIVERSAL::can( $class, 'xml_validate' ) );
+
+        my $obj = $class->new( __value => $value );
+        return 0 unless $obj->xml_validate(@_);
+    }
+
+    return 1;
 }
 
-
 #-----------------------------------------------------------------------------
-# Normalize white space. 
+# Normalize white space.
 #-----------------------------------------------------------------------------
 sub normalize_whitespace {
-    my $self 	= shift;
-    my $value 	= shift;
-	my $type	= $self->XmlSchemaType();
+    my $self  = shift;
+    my $value = shift;
+    my $type  = $self->XmlSchemaType();
 
-	if (defined(my $prop = $type->whiteSpace)) {
-		$prop = (reftype($prop) eq 'ARRAY') ? $prop : [$prop];
-		foreach my $ws (@$prop) {
-	        if ($ws =~ /^replace$/i) {
-    	        $value =~ s![\t\n\r]! !g;            
-        	} elsif ($ws =~ /^collapse$/i) {
-            	$value =~ s!\s+! !g;
-	            $value =~ s!^\s!!g;
-    	        $value =~ s!\s$!!g;
-        	}
-	        return $value;	# only the first one gets treated!
-		}				
-	}else {
-		my @ancestors = $self->get_ancestors();
-		foreach my $class(@ancestors) {
-			next unless UNIVERSAL::can($class, 'normalize_whitespace') && UNIVERSAL::can($class, 'new');
-			my $object = $class->new(__value=>$value);
-			my $nvalue = $object->normalize_whitespace($value);
-			
-			return $nvalue if ($nvalue ne $value);			
-		}
-	}
-		    
+    if ( defined( my $prop = $type->whiteSpace ) ) {
+        $prop = ( reftype($prop) eq 'ARRAY' ) ? $prop : [$prop];
+        foreach my $ws (@$prop) {
+            if ( $ws =~ /^replace$/i ) {
+                $value =~ s![\t\n\r]! !g;
+            }
+            elsif ( $ws =~ /^collapse$/i ) {
+                $value =~ s!\s+! !g;
+                $value =~ s!^\s!!g;
+                $value =~ s!\s$!!g;
+            }
+            return $value;    # only the first one gets treated!
+        }
+    }
+    else {
+        my @ancestors = $self->get_ancestors();
+        foreach my $class (@ancestors) {
+            next
+              unless UNIVERSAL::can( $class, 'normalize_whitespace' )
+                  && UNIVERSAL::can( $class, 'new' );
+            my $object = $class->new( __value => $value );
+            my $nvalue = $object->normalize_whitespace($value);
+
+            return $nvalue if ( $nvalue ne $value );
+        }
+    }
+
     return $value;
 }
 
@@ -302,7 +320,7 @@ a class data acessor B<XmlSchemaType> which returns B<undef>.
 This data accessor is set by each generated simple class to the meta information coming from your B<W3C Schema>. 
 This data is of class L<Corinna::Schema::SimpleType>. 
 
-You don't really need to know much about B<XmlSchemaType>. It's used internally by Pastor's XML binding and validation 
+You don't really need to know much about B<XmlSchemaType>. It's used internally by Corinna's XML binding and validation 
 methods as meta information about the generated class. 
 
 
@@ -341,7 +359,7 @@ error message that resulted from the death of L</xml_validate>.
 
 B<OBJECT METHOD>, overriden from L<Corinna::Type>.
  
-'B<xml_validate>' validates a Pastor XML object (of a generated class) with respect to the META information that
+'B<xml_validate>' validates a Corinna XML object (of a generated class) with respect to the META information that
 had originally be extracted from your original B<W3C XSD Schema>.
 
 On sucess, B<xml_validate> returns TRUE (1). On failure, it will B<die> on you on validation errors. 
@@ -410,7 +428,7 @@ calls will result in the failure of B<xml_validate> which will consequently I<di
 
 B<OBJECT METHOD>, overriden from L<Corinna::Type>.
  
-'B<xml_validate_further>' should perform extra validation on a Pastor XML object (of a generated class).
+'B<xml_validate_further>' should perform extra validation on a Corinna XML object (of a generated class).
 
 It is called by L</xml_validate> after performing rutine validations.  
 

@@ -1,10 +1,10 @@
+package Corinna::Schema::Parser;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #======================================================================
-package Corinna::Schema::Parser;
 
 use Cwd;
 use File::Spec;
@@ -300,7 +300,8 @@ sub _process_node {
           and do { $obj = $self->_process_enumeration($node); last SWITCH; };
         /^field$/ and do { return 0; };    # ignore children as well
         /^group$/ and do { $obj = $self->_process_group($node); last SWITCH; };
-        /^import$/ and do { $obj = $self->_process_import($node); last SWITCH; };
+        /^import$/
+          and do { $obj = $self->_process_import($node); last SWITCH; };
         /^include$/
           and do { $obj = $self->_process_include($node); last SWITCH; };
         /^key$/    and do { return 0; };    # ignore children as well
@@ -366,8 +367,8 @@ sub _process_attribute {
 
     # Create an "Attribute" schema model object and set all fields with the
     # attributes of this node.
-    my $obj =
-      Corinna::Schema::Attribute->new()->set_fields( get_attribute_hash($node) );
+    my $obj = Corinna::Schema::Attribute->new()
+      ->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
     $self->_fix_up_object( $obj, $node );
@@ -500,10 +501,8 @@ sub _process_element {
         # the current context.
         if (
             my $host = $context->find_node(
-                class => [
-                    "Corinna::Schema::ComplexType",
-                    "Corinna::Schema::Group"
-                ]
+                class =>
+                  [ "Corinna::Schema::ComplexType", "Corinna::Schema::Group" ]
             )
           )
         {
@@ -600,7 +599,8 @@ sub _process_documentation {
 
 # Find the top-most SimpleType model object closest to the top of the node-stack
 # of the current context. This will become our 'host' object.
-    if ( my $host = $context->find_node( class => "Corinna::Schema::Object" ) ) {
+    if ( my $host = $context->find_node( class => "Corinna::Schema::Object" ) )
+    {
 
         # If this is the first enumeration. Create the array.
         unless ( defined( $host->documentation() ) ) {
@@ -680,10 +680,8 @@ sub _process_extension {
     # in the schema being processed.
     if (
         my $host = $context->find_node(
-            class => [
-                "Corinna::Schema::ComplexType",
-                "Corinna::Schema::SimpleType"
-            ]
+            class =>
+              [ "Corinna::Schema::ComplexType", "Corinna::Schema::SimpleType" ]
         )
       )
     {
@@ -878,10 +876,8 @@ sub _process_restriction {
 
     if (
         my $host = $context->find_node(
-            class => [
-                "Corinna::Schema::SimpleType",
-                "Corinna::Schema::ComplexType"
-            ]
+            class =>
+              [ "Corinna::Schema::SimpleType", "Corinna::Schema::ComplexType" ]
         )
       )
     {
@@ -905,7 +901,7 @@ sub _process_schema_node {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
-    my $obj     = Corinna::Schema->new()->set_fields( get_attribute_hash($node) );
+    my $obj = Corinna::Schema->new()->set_fields( get_attribute_hash($node) );
 
     if ( $context->nodeStack->count() ) {
         die "Pastor : Schema elements cannot be nested!\n";
@@ -977,8 +973,8 @@ sub _process_simple_type {
 
     # Create an "SimpleType" schema model object and set all fields with the
     # attributes of this node.
-    my $obj =
-      Corinna::Schema::SimpleType->new()->set_fields( get_attribute_hash($node) );
+    my $obj = Corinna::Schema::SimpleType->new()
+      ->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
     $self->_fix_up_object( $obj, $node );
@@ -1030,8 +1026,8 @@ sub _process_complex_type {
 
     # Create an "ComplexType" schema model object and set all fields with the
     # attributes of this node.
-    my $obj =
-      Corinna::Schema::ComplexType->new()->set_fields( get_attribute_hash($node) );
+    my $obj = Corinna::Schema::ComplexType->new()
+      ->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
     $self->_fix_up_object( $obj, $node );

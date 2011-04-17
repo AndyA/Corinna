@@ -1,11 +1,10 @@
+package Corinna::Schema::List;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #========================================================
-package Corinna::Schema::List;
 
 use Corinna::Schema::Object;
 our @ISA = qw(Corinna::Schema::Object);

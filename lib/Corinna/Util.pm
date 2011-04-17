@@ -1,10 +1,10 @@
+package Corinna::Util;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #================================================================
-package Corinna::Util;
 
 use XML::LibXML;
 use Exporter;

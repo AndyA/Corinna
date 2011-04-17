@@ -1,25 +1,28 @@
+package Corinna::Builtin::hexBinary;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #======================================================================
-package Corinna::Builtin::hexBinary;
 
 use Corinna::Builtin::Scalar;
 
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::hexBinary->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::hexBinary',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'hexBinary|http://www.w3.org/2001/XMLSchema',
-                 'regex' => qr/^([0-9a-fA-F][0-9a-fA-F])+$/,  # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
-
+Corinna::Builtin::hexBinary->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::hexBinary',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'hexBinary|http://www.w3.org/2001/XMLSchema',
+            'regex'       => qr/^([0-9a-fA-F][0-9a-fA-F])+$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 1;
 

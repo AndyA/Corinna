@@ -1,42 +1,43 @@
+package Corinna::Builtin::boolean;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #======================================================================
-package Corinna::Builtin::boolean;
 use Corinna::Builtin::Scalar;
 
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-use overload 
-	'bool'	=> \&boolify;
-	
-	
-Corinna::Builtin::boolean->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::boolean',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'enumeration' => {
-                 					'0' => '1',
-                 					'1' => '1',
-                 					'false' => '1',
-                 					'true' => '1',                 					
-                 				  },
-                 'name' => 'boolean|http://www.w3.org/2001/XMLSchema',
-               }, 'Corinna::Schema::SimpleType' ) );
+use overload 'bool' => \&boolify;
 
-
+Corinna::Builtin::boolean->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::boolean',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'enumeration' => {
+                '0'     => '1',
+                '1'     => '1',
+                'false' => '1',
+                'true'  => '1',
+            },
+            'name' => 'boolean|http://www.w3.org/2001/XMLSchema',
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #----------------------------------------------
 # Boolean value.
 #----------------------------------------------
 sub boolify {
-	my $self = shift;
-	my $val = $self->__value();	
-	
-	return 0 if ($val =~ /false/io);
-	return $val;	
+    my $self = shift;
+    my $val  = $self->__value();
+
+    return 0 if ( $val =~ /false/io );
+    return $val;
 }
 
 1;

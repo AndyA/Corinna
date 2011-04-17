@@ -1,47 +1,50 @@
+package Corinna::Builtin::base64Binary;
+
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #======================================================================
-package Corinna::Builtin::base64Binary;
 use Corinna::Builtin::Scalar;
 use MIME::Base64 ();
 
 our @ISA = qw(Corinna::Builtin::Scalar);
 
-Corinna::Builtin::base64Binary->XmlSchemaType( bless( {
-                 'class' => 'Corinna::Builtin::base64Binary',
-                 'contentType' => 'simple',
-                 'derivedBy' => 'restriction',
-                 'name' => 'base64Binary|http://www.w3.org/2001/XMLSchema',
-                 
-                 'regex' => qr /^([0-9a-zA-Z\+\\\=][0-9a-zA-Z\+\\\=])+$/,   # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
-               }, 'Corinna::Schema::SimpleType' ) );
-
+Corinna::Builtin::base64Binary->XmlSchemaType(
+    bless(
+        {
+            'class'       => 'Corinna::Builtin::base64Binary',
+            'contentType' => 'simple',
+            'derivedBy'   => 'restriction',
+            'name'        => 'base64Binary|http://www.w3.org/2001/XMLSchema',
+            'regex'       => qr /^([0-9a-zA-Z\+\\\=][0-9a-zA-Z\+\\\=])+$/
+            , # Regex shamelessly copied from XML::Validator::Schema by Sam Tregar
+        },
+        'Corinna::Schema::SimpleType'
+    )
+);
 
 #-----------------------------------------------------------------
 sub to_binary {
-	my $self  = shift;
-	my $value = $self->__value() . "";	
-	return MIME::Base64::decode($value)
+    my $self  = shift;
+    my $value = $self->__value() . "";
+    return MIME::Base64::decode($value);
 }
 
 #-----------------------------------------------------------------
 sub set_from_binary($$) {
-	my $self  = shift;
-	return $self->__value(MIME::Base64::encode($_[0], ''));
+    my $self = shift;
+    return $self->__value( MIME::Base64::encode( $_[0], '' ) );
 }
 
 #-----------------------------------------------------------------
 # A CONSTRUCTOR
 #-----------------------------------------------------------------
 sub from_binary($$) {
-	my $self  	= shift->new();
-	return $self->set_from_binary(@_);
+    my $self = shift->new();
+    return $self->set_from_binary(@_);
 }
-
 
 1;
 

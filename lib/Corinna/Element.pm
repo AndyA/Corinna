@@ -1,10 +1,7 @@
-use utf8;
+package Corinna::Element;
+
 use strict;
 use warnings;
-no warnings qw(uninitialized);
-
-
-package Corinna::Element;
 
 use base qw(Corinna::ComplexType);
 

@@ -1,14 +1,12 @@
+package Corinna::Builtin::List;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
-
 #======================================================================
 # White space separated tokens.
 #======================================================================
-
-package Corinna::Builtin::List;
 
 use Corinna::Builtin::SimpleType;
 
@@ -16,47 +14,48 @@ our @ISA = qw(Corinna::Builtin::SimpleType);
 
 #-----------------------------------------------------------------
 sub to_list {
-	my $self  = shift;
-	my $value = $self->__value() . "";
-	my @list  = split /\s+/, $value;
-	return (wantarray ? (@list) : [@list]);
+    my $self  = shift;
+    my $value = $self->__value() . "";
+    my @list  = split /\s+/, $value;
+    return ( wantarray ? (@list) : [@list] );
 }
 
 #-----------------------------------------------------------------
 sub set_from_list {
-	my $self  	= shift;
-	return $self->__value(join (' ', @_));
+    my $self = shift;
+    return $self->__value( join( ' ', @_ ) );
 }
 
 #-----------------------------------------------------------------
 # A CONSTRUCTOR
 #-----------------------------------------------------------------
 sub from_list {
-	my $self  	= shift->new();
-	return $self->set_from_list(@_);
+    my $self = shift->new();
+    return $self->set_from_list(@_);
 }
 
 #--------------------------------------------------------------
 sub xml_validate {
-	my $self	= shift;
-	my $path	= shift || '';	
-	my $value	= $self->__value;
-	my $type	= $self->XmlSchemaType();
-	my $class	= $type->itemClass || "Corinna::SimpleType";
+    my $self  = shift;
+    my $path  = shift || '';
+    my $value = $self->__value;
+    my $type  = $self->XmlSchemaType();
+    my $class = $type->itemClass || "Corinna::SimpleType";
 
-	unless (UNIVERSAL::can($class,"xml_validate")) {
-		return $self->xml_validate_further(@_);
-	}
-	
-	my @parts	= $self->to_list();
-	
-	foreach my $part (@parts) {
-		my $object = $class->new(__value => $part);
-		$object->xml_validate(@_) or die "Pastor : Validate : $path : List part '$part' does not validate against class '$class' in list '$value'!";
-	}
-	return $self->xml_validate_further(@_);		
+    unless ( UNIVERSAL::can( $class, "xml_validate" ) ) {
+        return $self->xml_validate_further(@_);
+    }
+
+    my @parts = $self->to_list();
+
+    foreach my $part (@parts) {
+        my $object = $class->new( __value => $part );
+        $object->xml_validate(@_)
+          or die
+"Pastor : Validate : $path : List part '$part' does not validate against class '$class' in list '$value'!";
+    }
+    return $self->xml_validate_further(@_);
 }
-
 
 1;
 

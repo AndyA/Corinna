@@ -1,37 +1,45 @@
+package Corinna::Schema::SimpleType;
 use utf8;
 use strict;
 use warnings;
 no warnings qw(uninitialized);
 
 #=================================================
-package Corinna::Schema::SimpleType;
 use Corinna::Schema::Type;
 our @ISA = qw(Corinna::Schema::Type);
 
 Corinna::Schema::SimpleType->mk_accessors(
-qw(	enumeration 	
-	itemType		itemClass
-	length
-	memberTypes		memberClasses
-	minLength 		maxLength 	
-	minInclusive 	maxInclusive 
-	minExclusive 	maxExclusive
-	pattern			regex
-	totalDigits		fractionDigits
-	whiteSpace
-	));
-
+    qw(
+      enumeration
+      itemType
+      itemClass
+      length
+      memberTypes
+      memberClasses
+      minLength
+      maxLength
+      minInclusive
+      maxInclusive
+      minExclusive
+      maxExclusive
+      pattern
+      regex
+      totalDigits
+      fractionDigits
+      whiteSpace
+      )
+);
 
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};
-	
-	unless ($self->{contentType}) {
-		$self->{contentType} = "simple";
-	}
-	
-	return bless $self, $class;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
+
+    unless ( $self->{contentType} ) {
+        $self->{contentType} = "simple";
+    }
+
+    return bless $self, $class;
 }
 
 1;
@@ -61,10 +69,10 @@ This class descends from L<Corinna::Schema::Type> and hence from <Corinna::Schem
   $type->base('LocationCode');
   $type->derivedBy('restriction');
   
-  print $type->name();	# prints 'CountryCode'.
-  print $type->scope();	# prints 'global'.
-  print $type->base();	# prints 'LocationCode'.
-  print $type->derivedBy();	# prints 'restriction'.
+  print $type->name();  # prints 'CountryCode'.
+  print $type->scope(); # prints 'global'.
+  print $type->base();  # prints 'LocationCode'.
+  print $type->derivedBy(); # prints 'restriction'.
   
 
 =head1 DESCRIPTION
@@ -107,7 +115,7 @@ Please see L<Corinna::Schema::Type> and L<Corinna::Schema::Object> for a documen
 
 =head4 enumeration()
 
-  my $enum = $object->enumeration();	# GET
+  my $enum = $object->enumeration();    # GET
   $object->enumeration($enum);          # SET
 
 This is a W3C facet. For more information please refer to W3C XML schema documentation.
@@ -132,7 +140,7 @@ This accessor is created by a call to B<mk_accessors> from L<Class::Accessor>.
 
 =head4 length()
 
-  my $len = $object->length();	# GET
+  my $len = $object->length();  # GET
   $object->length($len);        # SET
 
 This is a W3C facet. For more information please refer to W3C XML schema documentation.
@@ -144,7 +152,7 @@ This accessor is created by a call to B<mk_accessors> from L<Class::Accessor>.
 
 =head4 itemType()
 
-  my $it = $object->itemType();	# GET
+  my $it = $object->itemType(); # GET
   $object->itemType($it);        # SET
 
 This is a W3C facet. For more information please refer to W3C XML schema documentation.
@@ -157,7 +165,7 @@ This accessor is created by a call to B<mk_accessors> from L<Class::Accessor>.
  
 =head4 itemClass()
 
-  my $cls = $object->itemClass();	# GET
+  my $cls = $object->itemClass();   # GET
   $object->itemClass($cls);        # SET
 
 This is NOT a W3C facet. It is computed. 
@@ -208,7 +216,7 @@ This accessor is created by a call to B<mk_accessors> from L<Class::Accessor>.
 
 =head4 memberTypes()
 
-  my $mt = $object->memberTypes();	# GET
+  my $mt = $object->memberTypes();  # GET
   $object->memberTypes($mt);        # SET
 
 This is a W3C facet. For more information please refer to W3C XML schema documentation.
