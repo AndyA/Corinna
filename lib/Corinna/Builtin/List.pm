@@ -15,7 +15,7 @@ use Corinna::Builtin::SimpleType;
 our @ISA = qw(Corinna::Builtin::SimpleType);
 
 #-----------------------------------------------------------------
-sub toList {
+sub to_list {
 	my $self  = shift;
 	my $value = $self->__value() . "";
 	my @list  = split /\s+/, $value;
@@ -23,7 +23,7 @@ sub toList {
 }
 
 #-----------------------------------------------------------------
-sub setFromList {
+sub set_from_list {
 	my $self  	= shift;
 	return $self->__value(join (' ', @_));
 }
@@ -31,9 +31,9 @@ sub setFromList {
 #-----------------------------------------------------------------
 # A CONSTRUCTOR
 #-----------------------------------------------------------------
-sub fromList {
+sub from_list {
 	my $self  	= shift->new();
-	return $self->setFromList(@_);
+	return $self->set_from_list(@_);
 }
 
 #--------------------------------------------------------------
@@ -48,7 +48,7 @@ sub xml_validate {
 		return $self->xml_validate_further(@_);
 	}
 	
-	my @parts	= $self->toList();
+	my @parts	= $self->to_list();
 	
 	foreach my $part (@parts) {
 		my $object = $class->new(__value => $part);
@@ -96,24 +96,24 @@ more methods.
 
 =head2 CONSTRUCTORS
 
-=head4 fromList()
+=head4 from_list()
 
-  my $object = Corinna::Builtin::List->fromList('hello', 'world');
+  my $object = Corinna::Builtin::List->from_list('hello', 'world');
 
 Creates a new object and sets its value by joining the values passed as the
 parameter list with a space seperator.
 
 =head2 OTHER METHODS
 
-=head4 setFromList()
+=head4 set_from_list()
 
-  $object->setFromList('hello', 'world');
+  $object->set_from_list('hello', 'world');
 
 Sets the object's value by joining the values passed as the parameter list with a space seperator.
 
-=head4 toList()
+=head4 to_list()
 
-  @list = $object->toList();
+  @list = $object->to_list();
 
 Splits the object's value on whitespace and returns the resulting list. 
 

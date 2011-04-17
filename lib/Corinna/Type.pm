@@ -14,7 +14,7 @@ use Class::Accessor;
 our @ISA = qw(Class::Accessor Class::Data::Inheritable);
 
 use Scalar::Util qw(reftype);
-use Corinna::Util  qw(getAttributeHash getChildrenHashDOM);
+use Corinna::Util  qw(get_attribute_hash get_children_hash_dom);
 
 
 Corinna::Type->mk_classdata('XmlSchemaType');
@@ -145,8 +145,8 @@ sub  xml_field_class($$)  {
 	my $type		= $self->XmlSchemaType();		
 	
 	# Try with elements
-	if (UNIVERSAL::can($type, 'effectiveElementInfo')) {
-		my $elementInfo = $type->effectiveElementInfo();	
+	if (UNIVERSAL::can($type, 'effective_element_info')) {
+		my $elementInfo = $type->effective_element_info();	
 		if (defined(my $element = $elementInfo->{$field})) {
 			$class= $element->class();
 		}
@@ -156,8 +156,8 @@ sub  xml_field_class($$)  {
 	
 
 	# Try with attributes
-	if (UNIVERSAL::can($type, 'effectiveAttributeInfo')) {		
-		my $attribInfo = $type->effectiveAttributeInfo();
+	if (UNIVERSAL::can($type, 'effective_attribute_info')) {		
+		my $attribInfo = $type->effective_attribute_info();
 		my $attribPfx  = $type->attributePrefix();
 		my $afield = $field;
 		$afield =~ s/^$attribPfx//;
@@ -180,16 +180,16 @@ sub  is_xml_field_singleton($$)  {
 	my $type		= $self->XmlSchemaType();		
 	
 	# Try with elements
-	if (UNIVERSAL::can($type, 'effectiveElementInfo')) {
-		my $elementInfo = $type->effectiveElementInfo();	
+	if (UNIVERSAL::can($type, 'effective_element_info')) {
+		my $elementInfo = $type->effective_element_info();	
 		if (defined(my $element = $elementInfo->{$field})) {
-			return $element->isSingleton();
+			return $element->is_singleton();
 		}
 	}
 	
 	# Try with attributes
-	if (UNIVERSAL::can($type, 'effectiveAttributeInfo')) {				
-		my $attribInfo = $type->effectiveAttributeInfo();
+	if (UNIVERSAL::can($type, 'effective_attribute_info')) {				
+		my $attribInfo = $type->effective_attribute_info();
 		my $attribPfx  = $type->attributePrefix();
 		my $afield = $field;
 		$afield =~ s/^$attribPfx//;	
@@ -231,14 +231,14 @@ sub  grab($)  {
 	my $type		= $self->XmlSchemaType();		
 	
 	# Try with elements
-	if (UNIVERSAL::can($type, 'effectiveElementInfo')) {	
-		my $elementInfo = $type->effectiveElementInfo();	
+	if (UNIVERSAL::can($type, 'effective_element_info')) {	
+		my $elementInfo = $type->effective_element_info();	
 		if (defined(my $element = $elementInfo->{$field})) {
 			my $class= $element->class();
 			if (defined($class)) {
 				my $result;			
 						
-				if ($element->isSingleton()) {
+				if ($element->is_singleton()) {
 					# singleton
 					$result = $self->{$field} = $class->new();
 				}else {
@@ -254,8 +254,8 @@ sub  grab($)  {
 	}
 	
 	# Try with attributes
-	if (UNIVERSAL::can($type, 'effectiveAttributeInfo')) {		
-		my $attribInfo = $type->effectiveAttributeInfo();
+	if (UNIVERSAL::can($type, 'effective_attribute_info')) {		
+		my $attribInfo = $type->effective_attribute_info();
 		my $attribPfx  = $type->attributePrefix();
 		my $afield = $field;
 		$afield =~ s/^$attribPfx//;
@@ -299,9 +299,9 @@ sub xml_validate {
 		}
 	}
 	
-	if (UNIVERSAL::can($type, 'effectiveAttributes')) {
-		my $attributes	= $type->effectiveAttributes();
-		my $attribInfo	= $type->effectiveAttributeInfo();	
+	if (UNIVERSAL::can($type, 'effective_attributes')) {
+		my $attributes	= $type->effective_attributes();
+		my $attribInfo	= $type->effective_attribute_info();	
 		my $attribPfx	= $type->attributePrefix() || '';
 	
 		foreach my $attribName (@$attributes) {
@@ -330,9 +330,9 @@ sub xml_validate {
 
 	
 	# Elements
-	if (UNIVERSAL::can($type, 'effectiveElements')) {
-		my $elements	= $type->effectiveElements();
-		my $elementInfo	= $type->effectiveElementInfo();	
+	if (UNIVERSAL::can($type, 'effective_elements')) {
+		my $elements	= $type->effective_elements();
+		my $elementInfo	= $type->effective_element_info();	
 		foreach my $elemName (@$elements) {
 			my $items = $self->{$elemName};
 			$items = [] unless defined($items);		
@@ -437,13 +437,13 @@ sub from_xml_dom {
 		# TODO : Namespaces
 		$self->{'._nodeName_'} = $node->localName();
 
-		if (UNIVERSAL::can($type, 'effectiveAttributeInfo')) {
+		if (UNIVERSAL::can($type, 'effective_attribute_info')) {
 			# Get the attributes from DOM into self		
-			my $attribs 	= getAttributeHash($node);
-			my $attribInfo	= $type->effectiveAttributeInfo();
+			my $attribs 	= get_attribute_hash($node);
+			my $attribInfo	= $type->effective_attribute_info();
 			my $attribPfx	= $type->attributePrefix() || '';
 	
-			foreach my $attribName (@{$type->effectiveAttributes()}) {
+			foreach my $attribName (@{$type->effective_attributes()}) {
 				next unless ( defined($attribs->{$attribName})); 
 		
 				my $class = $attribInfo->{$attribName}->class();
@@ -454,18 +454,18 @@ sub from_xml_dom {
 		
 			
 		# Get the child elements from DOM into self
-		if (UNIVERSAL::can($type, 'effectiveElementInfo')) {		
-			my $children 	= getChildrenHashDOM($node);
-			my $elemInfo	= $type->effectiveElementInfo();
+		if (UNIVERSAL::can($type, 'effective_element_info')) {		
+			my $children 	= get_children_hash_dom($node);
+			my $elemInfo	= $type->effective_element_info();
 	
-			foreach my $elemName (@{$type->effectiveElements()}) {
+			foreach my $elemName (@{$type->effective_elements()}) {
 				next unless ( defined($children->{$elemName}));
 		
 				my $elem  		= $elemInfo->{$elemName} or croak("Undefined child element for '$elemName'!");
 				my $class 		= $elem->class() or croak("Undefined class for '$elemName'!");
 				my $childNodes	= $children->{$elemName};
 		
-				if ($elem->isSingleton()) {
+				if ($elem->is_singleton()) {
 					# singleton
 					$self->{$elemName} = $class->from_xml_dom($childNodes->[0]);
 				}else {
@@ -745,8 +745,8 @@ sub to_xml_dom {
 	$doc->setDocumentElement($node) if ($doc_new);
 	
 	# Attributes
-	if(UNIVERSAL::can($type, 'effectiveAttributes')) { 
-		my $attributes	= $type->effectiveAttributes();
+	if(UNIVERSAL::can($type, 'effective_attributes')) { 
+		my $attributes	= $type->effective_attributes();
 		my $attribPfx	= $type->attributePrefix() || '';
 	
 		foreach my $attribName (@$attributes) {
@@ -767,9 +767,9 @@ sub to_xml_dom {
 	}
 	
 	#Elements 
-	if (UNIVERSAL::can($type, 'effectiveElements') && UNIVERSAL::can($type, 'effectiveElementInfo')) {
-		my $elements	= $type->effectiveElements();
-		my $elementInfo	= $type->effectiveElementInfo();	
+	if (UNIVERSAL::can($type, 'effective_elements') && UNIVERSAL::can($type, 'effective_element_info')) {
+		my $elements	= $type->effective_elements();
+		my $elementInfo	= $type->effective_element_info();	
 		foreach my $elemName (@$elements) {
 			my $value = $self->{$elemName};
 			next unless defined($value);		
@@ -791,10 +791,10 @@ sub to_xml_dom {
 					}
 				}
 			
-				if (defined(my $childNode = $self->_childToDom(doc=>$doc, name=>$elemName, child=>$obj))) {
+				if (defined(my $childNode = $self->_child_to_dom(doc=>$doc, name=>$elemName, child=>$obj))) {
 					$node->appendChild($childNode);
 				}
-				last if ($element->isSingleton());		# singleton
+				last if ($element->is_singleton());		# singleton
 			}								
 		}
 	}
@@ -804,7 +804,7 @@ sub to_xml_dom {
 
 
 #-------------------------------------------------------------------
-sub _childToDom {
+sub _child_to_dom {
 	my $self 	= shift;
 	my $args 	= {@_};
 	my $child 	= $args->{child};
@@ -816,8 +816,8 @@ sub _childToDom {
 	}
 		
 	# Otherwise, we'll just stringify the child and return an element with a text node.
-	my $name	= $args->{name} or die "Pastor: _childToDom : Child node needs a name!\n";
-	$doc						or die "Pastor: _childToDom : Need a DOM Document!\n";		
+	my $name	= $args->{name} or die "Pastor: _child_to_dom : Child node needs a name!\n";
+	$doc						or die "Pastor: _child_to_dom : Need a DOM Document!\n";		
 	
 	# TODO : Namespaces
 	my $node = $doc->createElement($name);

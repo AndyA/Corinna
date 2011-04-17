@@ -25,7 +25,7 @@ Corinna::Builtin::date->XmlSchemaType( bless( {
 #--------------------------------------------------------
 # returns a DateTime object representing the value.
 #--------------------------------------------------------
-sub toDateTime() {
+sub to_date_time() {
 	my $self  = shift;
 	my $value = $self->__value;
 	
@@ -49,15 +49,15 @@ sub toDateTime() {
 # CONSTRUCTOR. Creates a new object and sets the value from 
 # a DateTime object.
 #--------------------------------------------------------
-sub fromDateTime($) {
+sub from_date_time($) {
 	my $self = shift->new();
-	$self->setFromDateTime(shift);	
+	$self->set_from_date_time(shift);	
 }
 
 #--------------------------------------------------------
 # sets the value from a DateTime object.
 #--------------------------------------------------------
-sub setFromDateTime($) {
+sub set_from_date_time($) {
 	my $self = shift;
 	my $dt 	 = shift;
 
@@ -114,28 +114,28 @@ more methods.
 
 =head2 CONSTRUCTORS
  
-=head4 fromDateTime() 
+=head4 from_date_time() 
 
-  my $object = Corinna::Builtin::date->fromDateTime($dt);
+  my $object = Corinna::Builtin::date->from_date_time($dt);
 
 B<CONSTRUCTOR>. 
 
-The B<fromDateTime()> constructor method instantiates a new object from L<DateTime> object. 
+The B<from_date_time()> constructor method instantiates a new object from L<DateTime> object. 
 It is inheritable. The necessary conversion is done within the method.	
 
 
 =head2 OTHER METHODS
 
-=head4 setFromDateTime()
+=head4 set_from_date_time()
 
-	$object->setFromDateTime($dt);
+	$object->set_from_date_time($dt);
 	
 This method sets the value of the object from a L<DateTime> object. 
 The necessary conversion is done within the method.	
 
-=head4 toDateTime()
+=head4 to_date_time()
 
-	my $dt = $object->toDateTime();
+	my $dt = $object->to_date_time();
 	
 This method returns the value of the object as a L<DateTime> object. 
 The necessary conversion is done within the method.	

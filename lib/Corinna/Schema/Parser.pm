@@ -18,7 +18,7 @@ use XML::LibXML;
 use Corinna::Stack;
 use Corinna::Schema;
 
-use Corinna::Util qw(getAttributeHash sprint_xml_element);
+use Corinna::Util qw(get_attribute_hash sprint_xml_element);
 use Scalar::Util qw(reftype);
 
 our @ISA = qw(Class::Accessor);
@@ -67,7 +67,7 @@ sub parse { &process; }
 #------------------------------------------------------------
 # An alias for 'process'. See Process.
 #------------------------------------------------------------
-sub processSchema { &process; }
+sub process_schema { &process; }
 
 #------------------------------------------------------------
 sub process {
@@ -78,7 +78,7 @@ sub process {
 #------------------------------------------------------------
 # Called internally when an 'include' element is encountered in a schema.
 #------------------------------------------------------------
-sub includeSchema() {
+sub include_schema() {
     my $self = shift;
 
     $self->_process( @_, operation => "include" );
@@ -87,7 +87,7 @@ sub includeSchema() {
 #------------------------------------------------------------
 # Called internally when an 'import' element is encountered in a schema.
 #------------------------------------------------------------
-sub importSchema() {
+sub import_schema() {
     my $self = shift;
 
     $self->_process( @_, operation => "import" );
@@ -98,7 +98,7 @@ sub importSchema() {
 #------------------------------------------------------------
 # Called internally when an 'redefine' element is encountered in a schema.
 #------------------------------------------------------------
-sub redefineSchema() {
+sub redefine_schema() {
     my $self = shift;
 
     $self->_process( @_, operation => "redefine" );
@@ -107,7 +107,7 @@ sub redefineSchema() {
 #------------------------------------------------------------
 # Parse a given schema into a LibXML DOM tree.
 #------------------------------------------------------------
-sub parseToDom() {
+sub parse_to_dom() {
     my $self    = shift;
     my $args    = {@_};
     my $verbose = $self->verbose || 0;
@@ -223,11 +223,11 @@ sub _process {
     $self->contextStack->push($context);
 
     # Parse the schema into a DOM tree.
-    my $schema_doc = $self->parseToDom(%$args);
+    my $schema_doc = $self->parse_to_dom(%$args);
 
  # Now start processing each node of the schema, starting from the ROOT element.
  #_print_xml_doc($schema_doc);
-    $self->_processNode($schema_doc);
+    $self->_process_node($schema_doc);
 
     # Pop the context from the stack.
     $self->contextStack->pop();
@@ -249,7 +249,7 @@ sub _process {
 # previously created model objects (Attribute, Element, ComplexType, SimpleType, Group, ...).
 # On the top of the stack will appear the object that was most recently created.
 #------------------------------------------------------------
-sub _processNode {
+sub _process_node {
     my $self    = shift;
     my $node    = shift;
     my $verbose = $self->verbose;
@@ -257,7 +257,7 @@ sub _processNode {
     # If we are given a DOM document, instead of an ELEMENT, then
     # just recurse with the ROOT element.
     if ( UNIVERSAL::isa( $node, "XML::LibXML::Document" ) ) {
-        return $self->_processNode( $node->documentElement() );
+        return $self->_process_node( $node->documentElement() );
     }
 
     # We only process DOM elements here, nothing else means much to us.
@@ -266,7 +266,6 @@ sub _processNode {
     }
 
     my $context   = $self->context();
-    my $model     = $self->model();
     my $nodeStack = $context->nodeStack();
     my $obj       = undef;
 
@@ -274,7 +273,7 @@ sub _processNode {
     my $name = $node->localName;
 
     if ( $verbose >= 10 ) {
-        my $attribs = getAttributeHash($node);
+        my $attribs = get_attribute_hash($node);
         print STDERR "  $name ($attribs->{name})\n";
     }
 
@@ -284,44 +283,44 @@ sub _processNode {
         /^annotation$/ and do { last SWITCH; };
         /^appinfo$/ and return 0;    # ignore children as well
         /^attribute$/
-          and do { $obj = $self->_processAttribute($node); last SWITCH; };
+          and do { $obj = $self->_process_attribute($node); last SWITCH; };
         /^attributeGroup$/
-          and do { $obj = $self->_processAttributeGroup($node); last SWITCH; };
+          and do { $obj = $self->_process_attributeGroup($node); last SWITCH; };
         /^choice$/         and do { last SWITCH; };
         /^complexContent$/ and do { last SWITCH; };
         /^complexType$/
-          and do { $obj = $self->_processComplexType($node); last SWITCH; };
+          and do { $obj = $self->_process_complex_type($node); last SWITCH; };
         /^documentation$/
-          and do { $obj = $self->_processDocumentation($node); last SWITCH; };
+          and do { $obj = $self->_process_documentation($node); last SWITCH; };
         /^element$/
-          and do { $obj = $self->_processElement($node); last SWITCH; };
+          and do { $obj = $self->_process_element($node); last SWITCH; };
         /^extension$/
-          and do { $obj = $self->_processExtension($node); last SWITCH; };
+          and do { $obj = $self->_process_extension($node); last SWITCH; };
         /^enumeration$/
-          and do { $obj = $self->_processEnumeration($node); last SWITCH; };
+          and do { $obj = $self->_process_enumeration($node); last SWITCH; };
         /^field$/ and do { return 0; };    # ignore children as well
-        /^group$/ and do { $obj = $self->_processGroup($node); last SWITCH; };
-        /^import$/ and do { $obj = $self->_processImport($node); last SWITCH; };
+        /^group$/ and do { $obj = $self->_process_group($node); last SWITCH; };
+        /^import$/ and do { $obj = $self->_process_import($node); last SWITCH; };
         /^include$/
-          and do { $obj = $self->_processInclude($node); last SWITCH; };
+          and do { $obj = $self->_process_include($node); last SWITCH; };
         /^key$/    and do { return 0; };    # ignore children as well
         /^keyref$/ and do { return 0; };    # ignore children as well
-        /^list$/ and do { $obj = $self->_processList($node); last SWITCH; };
+        /^list$/ and do { $obj = $self->_process_list($node); last SWITCH; };
         /^redefine$/
-          and do { $obj = $self->_processRedefine($node); last SWITCH; };
+          and do { $obj = $self->_process_redefine($node); last SWITCH; };
         /^restriction$/
-          and do { $obj = $self->_processRestriction($node); last SWITCH; };
+          and do { $obj = $self->_process_restriction($node); last SWITCH; };
         /^schema$/
-          and do { $obj = $self->_processSchemaNode($node); last SWITCH; };
+          and do { $obj = $self->_process_schema_node($node); last SWITCH; };
         /^selector$/ and do { return 0; };      # ignore children as well
         /^sequence$/ and do { last SWITCH; };
         /^simpleContent$/
-          and do { $obj = $self->_processSimpleContent($node); last SWITCH; };
+          and do { $obj = $self->_process_simple_content($node); last SWITCH; };
         /^simpleType$/
-          and do { $obj = $self->_processSimpleType($node); last SWITCH; };
+          and do { $obj = $self->_process_simple_type($node); last SWITCH; };
         /^unique$/ and do { return 0; };
-        /^union$/ and do { $obj = $self->_processUnion($node); last SWITCH; };
-      OTHERWISE: { $obj = $self->_processOtherNodes($node); }
+        /^union$/ and do { $obj = $self->_process_union($node); last SWITCH; };
+      OTHERWISE: { $obj = $self->_process_other_nodes($node); }
     }
 
 # If the above created a model object, push it on the node stack within the current
@@ -334,21 +333,21 @@ sub _processNode {
     my @children =
       grep { UNIVERSAL::isa( $_, "XML::LibXML::Element" ) } $node->childNodes();
     foreach my $child (@children) {
-        $self->_processNode($child);
+        $self->_process_node($child);
     }
 
     # CLEAN UP
     if ( defined($obj) ) {
-        $self->_fixNameSpaces( $obj, $node, [ 'type', 'base', 'ref' ] );
+        $self->_fix_name_spaces( $obj, $node, [ 'type', 'base', 'ref' ] );
 
         # 'Union' must be post-processed
         if ( UNIVERSAL::isa( $obj, "Corinna::Schema::Union" ) ) {
-            $self->_postProcessUnion( $obj, $node );
+            $self->_post_process_union( $obj, $node );
         }
 
         # 'List' must be post-processed
         if ( UNIVERSAL::isa( $obj, "Corinna::Schema::List" ) ) {
-            $self->_postProcessList( $obj, $node );
+            $self->_post_process_list( $obj, $node );
         }
 
         $nodeStack->pop();
@@ -360,7 +359,7 @@ sub _processNode {
 # This routine is called whenever an 'attribute' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processAttribute {
+sub _process_attribute {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -368,10 +367,10 @@ sub _processAttribute {
     # Create an "Attribute" schema model object and set all fields with the
     # attributes of this node.
     my $obj =
-      Corinna::Schema::Attribute->new()->setFields( getAttributeHash($node) );
+      Corinna::Schema::Attribute->new()->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
-    $self->_fixUpObject( $obj, $node );
+    $self->_fix_up_object( $obj, $node );
 
     # All attributes must have a name.
     unless ( $obj->name() ) {
@@ -384,7 +383,7 @@ sub _processAttribute {
  # ComplexType or AttributeGroup that is closest to the top of the node stack in
  # the current context.
         if (
-            my $host = $context->findNode(
+            my $host = $context->find_node(
                 class => [
                     "Corinna::Schema::ComplexType",
                     "Corinna::Schema::AttributeGroup"
@@ -421,7 +420,7 @@ sub _processAttribute {
 # This routine is called whenever an 'attributeGroup' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processAttributeGroup {
+sub _process_attributeGroup {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -429,10 +428,10 @@ sub _processAttributeGroup {
     # Create an "AttributeGroup" schema model object and set all fields with the
     # attributes of this node.
     my $obj = Corinna::Schema::AttributeGroup->new()
-      ->setFields( getAttributeHash($node) );
+      ->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
-    $self->_fixUpObject( $obj, $node );
+    $self->_fix_up_object( $obj, $node );
 
     unless ( $obj->name() ) {
         die "Pastor : Attribute Group must have a name!\n"
@@ -445,7 +444,7 @@ sub _processAttributeGroup {
         # ComplexType that is closest to the top of the node stack in
         # the current context.
         if ( my $host =
-            $context->findNode( class => "Corinna::Schema::ComplexType" ) )
+            $context->find_node( class => "Corinna::Schema::ComplexType" ) )
         {
             my $attribs    = $host->attributes();
             my $attribInfo = $host->attributeInfo();
@@ -476,7 +475,7 @@ sub _processAttributeGroup {
 # This routine is called whenever an 'element' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processElement {
+sub _process_element {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -484,10 +483,10 @@ sub _processElement {
     # Create an "Element" schema model object and set all fields with the
     # attributes of this node.
     my $obj =
-      Corinna::Schema::Element->new()->setFields( getAttributeHash($node) );
+      Corinna::Schema::Element->new()->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
-    $self->_fixUpObject( $obj, $node );
+    $self->_fix_up_object( $obj, $node );
     unless ( $obj->name() ) {
         die "Pastor : Element must have a name!\n"
           . sprint_xml_element( $node->parentNode() || $node ) . "\n";
@@ -500,7 +499,7 @@ sub _processElement {
         # ComplexType that is closest to the top of the node stack in
         # the current context.
         if (
-            my $host = $context->findNode(
+            my $host = $context->find_node(
                 class => [
                     "Corinna::Schema::ComplexType",
                     "Corinna::Schema::Group"
@@ -537,7 +536,7 @@ sub _processElement {
 # This routine is called whenever a 'group' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processGroup {
+sub _process_group {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -545,10 +544,10 @@ sub _processGroup {
     # Create an "Group" schema model object and set all fields with the
     # attributes of this node.
     my $obj =
-      Corinna::Schema::Group->new()->setFields( getAttributeHash($node) );
+      Corinna::Schema::Group->new()->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
-    $self->_fixUpObject( $obj, $node );
+    $self->_fix_up_object( $obj, $node );
     unless ( $obj->name() ) {
         die "Pastor : Group must have a name!\n"
           . sprint_xml_element( $node->parentNode() || $node ) . "\n";
@@ -561,7 +560,7 @@ sub _processGroup {
         # ComplexType that is closest to the top of the node stack in
         # the current context.
         if ( my $host =
-            $context->findNode( class => "Corinna::Schema::ComplexType" ) )
+            $context->find_node( class => "Corinna::Schema::ComplexType" ) )
         {
             my $elems    = $host->elements();
             my $elemInfo = $host->elementInfo();
@@ -592,16 +591,16 @@ sub _processGroup {
 # This routine is called whenever an 'documentation' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processDocumentation {
+sub _process_documentation {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
-    my $attribs = getAttributeHash($node);
+    my $attribs = get_attribute_hash($node);
     my $value   = $attribs->{value};
 
 # Find the top-most SimpleType model object closest to the top of the node-stack
 # of the current context. This will become our 'host' object.
-    if ( my $host = $context->findNode( class => "Corinna::Schema::Object" ) ) {
+    if ( my $host = $context->find_node( class => "Corinna::Schema::Object" ) ) {
 
         # If this is the first enumeration. Create the array.
         unless ( defined( $host->documentation() ) ) {
@@ -610,7 +609,7 @@ sub _processDocumentation {
 
         # Create the nex documentation
         my $doc = Corinna::Schema::Documentation->new();
-        $doc->setFields($attribs);
+        $doc->set_fields($attribs);
         $doc->text( $node->textContent() );
 
         my $docs = $host->documentation;
@@ -631,17 +630,17 @@ sub _processDocumentation {
 # This routine is called whenever an 'enumeration' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processEnumeration {
+sub _process_enumeration {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
-    my $attribs = getAttributeHash($node);
+    my $attribs = get_attribute_hash($node);
     my $value   = $attribs->{value};
 
 # Find the top-most SimpleType model object closest to the top of the node-stack
 # of the current context. This will become our 'host' object.
     if ( my $host =
-        $context->findNode( class => "Corinna::Schema::SimpleType" ) )
+        $context->find_node( class => "Corinna::Schema::SimpleType" ) )
     {
 
         # If this is the first enumeration. Create the hash.
@@ -672,15 +671,15 @@ sub _processEnumeration {
 # It is effectively ignored except for its attributes which are copied onto
 # the Complex or Simple Type object that is closest to the top of the node stack.
 #------------------------------------------------------------
-sub _processExtension {
+sub _process_extension {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
-    my $attribs = getAttributeHash($node);
+    my $attribs = get_attribute_hash($node);
 
     # in the schema being processed.
     if (
-        my $host = $context->findNode(
+        my $host = $context->find_node(
             class => [
                 "Corinna::Schema::ComplexType",
                 "Corinna::Schema::SimpleType"
@@ -688,7 +687,7 @@ sub _processExtension {
         )
       )
     {
-        $host->setFields($attribs);
+        $host->set_fields($attribs);
         $host->derivedBy("extension");
     }
     else {
@@ -705,7 +704,7 @@ sub _processExtension {
 # in the schema being processed.
 #
 #------------------------------------------------------------
-sub _processUnion {
+sub _process_union {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -713,10 +712,10 @@ sub _processUnion {
     # Create a "Union" schema model object and set all fields with the
     # attributes of this node.
     my $obj =
-      Corinna::Schema::Union->new()->setFields( getAttributeHash($node) );
+      Corinna::Schema::Union->new()->set_fields( get_attribute_hash($node) );
 
     if ( my $host =
-        $context->findNode( class => ["Corinna::Schema::SimpleType"] ) )
+        $context->find_node( class => ["Corinna::Schema::SimpleType"] ) )
     {
         $host->base("Union|http://www.w3.org/2001/XMLSchema");
         $host->derivedBy("union");
@@ -731,7 +730,7 @@ sub _processUnion {
 }
 
 #------------------------------------------------------------
-sub _postProcessUnion {
+sub _post_process_union {
     my $self    = shift;
     my $obj     = shift;
     my $node    = shift;
@@ -739,9 +738,9 @@ sub _postProcessUnion {
 
     # in the schema being processed.
     if ( my $host =
-        $context->findNode( class => ["Corinna::Schema::SimpleType"] ) )
+        $context->find_node( class => ["Corinna::Schema::SimpleType"] ) )
     {
-        $host->setFields(%$obj);
+        $host->set_fields(%$obj);
     }
     return $obj;
 }
@@ -751,7 +750,7 @@ sub _postProcessUnion {
 # in the schema being processed.
 #
 #------------------------------------------------------------
-sub _processList {
+sub _process_list {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -759,10 +758,10 @@ sub _processList {
     # Create a "List" schema model object and set all fields with the
     # attributes of this node.
     my $obj =
-      Corinna::Schema::List->new()->setFields( getAttributeHash($node) );
+      Corinna::Schema::List->new()->set_fields( get_attribute_hash($node) );
 
     if ( my $host =
-        $context->findNode( class => ["Corinna::Schema::SimpleType"] ) )
+        $context->find_node( class => ["Corinna::Schema::SimpleType"] ) )
     {
         $host->base("List|http://www.w3.org/2001/XMLSchema");
         $host->derivedBy("list");
@@ -777,7 +776,7 @@ sub _processList {
 }
 
 #------------------------------------------------------------
-sub _postProcessList {
+sub _post_process_list {
     my $self    = shift;
     my $obj     = shift;
     my $node    = shift;
@@ -785,9 +784,9 @@ sub _postProcessList {
 
     # in the schema being processed.
     if ( my $host =
-        $context->findNode( class => ["Corinna::Schema::SimpleType"] ) )
+        $context->find_node( class => ["Corinna::Schema::SimpleType"] ) )
     {
-        $host->setFields(%$obj);
+        $host->set_fields(%$obj);
     }
     return $obj;
 }
@@ -796,21 +795,21 @@ sub _postProcessList {
 # This routine is called whenever an 'include' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processInclude {
+sub _process_include {
     my $self           = shift;
     my $node           = shift;
     my $context        = $self->context();
-    my $attribs        = getAttributeHash($node);
+    my $attribs        = get_attribute_hash($node);
     my $schemaLocation = $attribs->{schemaLocation};
 
    # "inlude" element must be a child of the schema element. It can't be deeper.
-    unless ( UNIVERSAL::isa( $context->topNode(), "Corinna::Schema" ) ) {
+    unless ( UNIVERSAL::isa( $context->top_node(), "Corinna::Schema" ) ) {
         die "Pastor : Schema INCLUDE must be global!\n"
           . sprint_xml_element($node) . "\n";
     }
 
     # Just call the method that does the inclusion.
-    $self->includeSchema( schema => $schemaLocation );
+    $self->include_schema( schema => $schemaLocation );
 
     # Nothing will get pushed on the node-stack.
     return undef;
@@ -820,20 +819,20 @@ sub _processInclude {
 # This routine is called whenever an 'import' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processImport {
+sub _process_import {
     my $self           = shift;
     my $node           = shift;
     my $context        = $self->context();
-    my $attribs        = getAttributeHash($node);
+    my $attribs        = get_attribute_hash($node);
     my $schemaLocation = $attribs->{schemaLocation};
 
    # "import" element must be a child of the schema element. It can't be deeper.
-    unless ( UNIVERSAL::isa( $context->topNode(), "Corinna::Schema" ) ) {
+    unless ( UNIVERSAL::isa( $context->top_node(), "Corinna::Schema" ) ) {
         die "Pastor : Schema IMPORT must be global!\n";
     }
 
     # Just call the method that does the import.
-    $self->importSchema( schema => $schemaLocation );
+    $self->import_schema( schema => $schemaLocation );
 
     # Nothing will get pushed on the node-stack.
     return undef;
@@ -843,21 +842,21 @@ sub _processImport {
 # This routine is called whenever an 'redfine' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processRedefine {
+sub _process_redefine {
     my $self           = shift;
     my $node           = shift;
     my $context        = $self->context();
-    my $attribs        = getAttributeHash($node);
+    my $attribs        = get_attribute_hash($node);
     my $schemaLocation = $attribs->{schemaLocation};
 
  # "redefine" element must be a child of the schema element. It can't be deeper.
-    unless ( UNIVERSAL::isa( $context->topNode(), "Corinna::Schema" ) ) {
+    unless ( UNIVERSAL::isa( $context->top_node(), "Corinna::Schema" ) ) {
         die "Pastor : Schema REPLACE must be global!\n"
           . sprint_xml_element($node) . "\n";
     }
 
     # Just call the method that does the redefine.
-    $self->redefineSchema( schema => $schemaLocation );
+    $self->redefine_schema( schema => $schemaLocation );
 
     # Nothing will get pushed on the node-stack.
     return undef;
@@ -871,14 +870,14 @@ sub _processRedefine {
 # It is effectively ignored except for its attributes which are copied onto
 # the Complex or Simple Type object that is closest to the top of the node stack.
 #------------------------------------------------------------
-sub _processRestriction {
+sub _process_restriction {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
-    my $attribs = getAttributeHash($node);
+    my $attribs = get_attribute_hash($node);
 
     if (
-        my $host = $context->findNode(
+        my $host = $context->find_node(
             class => [
                 "Corinna::Schema::SimpleType",
                 "Corinna::Schema::ComplexType"
@@ -886,7 +885,7 @@ sub _processRestriction {
         )
       )
     {
-        $host->setFields($attribs);
+        $host->set_fields($attribs);
         $host->derivedBy("restriction");
     }
     else {
@@ -902,11 +901,11 @@ sub _processRestriction {
 #
 # Normally this should occur only once and first in a given schema file.
 #------------------------------------------------------------
-sub _processSchemaNode {
+sub _process_schema_node {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
-    my $obj     = Corinna::Schema->new()->setFields( getAttributeHash($node) );
+    my $obj     = Corinna::Schema->new()->set_fields( get_attribute_hash($node) );
 
     if ( $context->nodeStack->count() ) {
         die "Pastor : Schema elements cannot be nested!\n";
@@ -939,7 +938,7 @@ sub _processSchemaNode {
     }
 
     $context->targetNamespace($nsUri);
-    $self->model->addNamespaceUri($nsUri);
+    $self->model->add_namespace_uri($nsUri);
 
     return $obj;
 }
@@ -948,16 +947,16 @@ sub _processSchemaNode {
 # This routine is called whenever an 'simpleType' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processSimpleContent {
+sub _process_simple_content {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
 
 # if this is a local definition, then our host element/attribute must be of this type
     if ( my $host =
-        $context->findNode( class => [ "Corinna::Schema::ComplexType", ] ) )
+        $context->find_node( class => [ "Corinna::Schema::ComplexType", ] ) )
     {
-        $host->setFields( { isSimpleContent => 1 } );
+        $host->set_fields( { isSimpleContent => 1 } );
     }
 
     # Nothing to add to the model.
@@ -971,7 +970,7 @@ sub _processSimpleContent {
 # This routine is called whenever an 'simpleType' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processSimpleType {
+sub _process_simple_type {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -979,17 +978,17 @@ sub _processSimpleType {
     # Create an "SimpleType" schema model object and set all fields with the
     # attributes of this node.
     my $obj =
-      Corinna::Schema::SimpleType->new()->setFields( getAttributeHash($node) );
+      Corinna::Schema::SimpleType->new()->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
-    $self->_fixUpObject( $obj, $node );
+    $self->_fix_up_object( $obj, $node );
     unless ( $obj->name() ) {
         die "Pastor : SimpleType must have a name!\n";
     }
 
 # if this is a local definition, then our host element/attribute must be of this type
     if (
-        my $host = $context->findNode(
+        my $host = $context->find_node(
             class => [
                 "Corinna::Schema::Attribute", "Corinna::Schema::Element",
                 "Corinna::Schema::Union",     "Corinna::Schema::List",
@@ -1000,7 +999,7 @@ sub _processSimpleType {
         if (   UNIVERSAL::isa( $host, "Corinna::Schema::Attribute" )
             || UNIVERSAL::isa( $host, "Corinna::Schema::Element" ) )
         {
-            $host->setFields( { type => $obj->name() } );
+            $host->set_fields( { type => $obj->name() } );
         }
         elsif ( UNIVERSAL::isa( $host, "Corinna::Schema::Union" ) ) {
             my $mbt = $host->memberTypes;
@@ -1024,7 +1023,7 @@ sub _processSimpleType {
 # This routine is called whenever an 'complexType' element is encountered
 # in the schema being processed.
 #------------------------------------------------------------
-sub _processComplexType {
+sub _process_complex_type {
     my $self    = shift;
     my $node    = shift;
     my $context = $self->context();
@@ -1032,19 +1031,19 @@ sub _processComplexType {
     # Create an "ComplexType" schema model object and set all fields with the
     # attributes of this node.
     my $obj =
-      Corinna::Schema::ComplexType->new()->setFields( getAttributeHash($node) );
+      Corinna::Schema::ComplexType->new()->set_fields( get_attribute_hash($node) );
 
     # Fix-up the scope and the name of the newly created object.
-    $self->_fixUpObject( $obj, $node );
+    $self->_fix_up_object( $obj, $node );
     unless ( $obj->name() ) {
         die "Pastor : ComplexType must have a name!\n";
     }
 
     # if this is a local definition, then our host element must be of this type
     if ( my $host =
-        $context->findNode( class => ["Corinna::Schema::Element"] ) )
+        $context->find_node( class => ["Corinna::Schema::Element"] ) )
     {
-        $host->setFields( { type => $obj->name() } );
+        $host->set_fields( { type => $obj->name() } );
     }
 
 # ComplexTypes are always added to the model, regardless of local or global scope.
@@ -1063,12 +1062,12 @@ sub _processComplexType {
 #
 # Any other element will cause a FATAL error as it is unrecognized.
 #------------------------------------------------------------
-sub _processOtherNodes {
+sub _process_other_nodes {
     my $self    = shift;
     my $node    = shift;
     my $name    = $node->localName();
     my $context = $self->context();
-    my $attribs = getAttributeHash($node);
+    my $attribs = get_attribute_hash($node);
     my $value   = $attribs->{value};
 
     if ( defined($value) ) {
@@ -1078,7 +1077,7 @@ sub _processOtherNodes {
             die
 "Pastor : Element '$name' unexpected as root element in schema!\n";
         }
-        elsif ( UNIVERSAL::isa( $context->topNode(), "Corinna::Schema" ) ) {
+        elsif ( UNIVERSAL::isa( $context->top_node(), "Corinna::Schema" ) ) {
             die "Pastor : Element '$name' cannot be global in schema!\n"
               . sprint_xml_element($node) . "\n";
         }
@@ -1086,7 +1085,7 @@ sub _processOtherNodes {
 
             # Just set the value as a field in the host object
             if ( my $host =
-                $context->findNode( class => "Corinna::Schema::Object" ) )
+                $context->find_node( class => "Corinna::Schema::Object" ) )
             {
 
                 # Multiplicity is allowed.
@@ -1098,12 +1097,12 @@ sub _processOtherNodes {
                         and ( reftype($oldValue) eq 'ARRAY' ) )
                     {
                         $oldValue = [$oldValue];
-                        $host->setFields( { $name => $oldValue } );
+                        $host->set_fields( { $name => $oldValue } );
                     }
                     push @$oldValue, $value;
                 }
                 else {
-                    $host->setFields( { $name => $value } );
+                    $host->set_fields( { $name => $value } );
                 }
 
             }
@@ -1136,7 +1135,7 @@ sub _processOtherNodes {
 # we globalize type definitions in all cases. We need distunguashible names for them.
 #
 #------------------------------------------------------------
-sub _fixUpObject {
+sub _fix_up_object {
     my $self    = shift;
     my $obj     = shift;
     my $node    = shift;
@@ -1150,7 +1149,7 @@ sub _fixUpObject {
           . "' in schema. This may not be a real XSD schema!";
     }
 
-    if ( UNIVERSAL::isa( $context->topNode(), "Corinna::Schema" ) ) {
+    if ( UNIVERSAL::isa( $context->top_node(), "Corinna::Schema" ) ) {
 
         # If we are immediatly underneath a schema element,
         # this means we are in a global scope
@@ -1169,8 +1168,8 @@ sub _fixUpObject {
         }
         elsif (
             !$obj->name()
-            && (   $context->findNode( class => "Corinna::Schema::Union" )
-                || $context->findNode( class => "Corinna::Schema::List" ) )
+            && (   $context->find_node( class => "Corinna::Schema::Union" )
+                || $context->find_node( class => "Corinna::Schema::List" ) )
           )
         {
 
@@ -1180,7 +1179,7 @@ sub _fixUpObject {
             }
             $self->counter( $self->counter + 1 );
             my $name = "item_" . sprintf( "%04d", $self->counter );
-            my $path = $context->namePath( separator => "_" );
+            my $path = $context->name_path( separator => "_" );
             $name = $path . "_" . $name if ($path);
 
             $obj->name($name);
@@ -1191,7 +1190,7 @@ sub _fixUpObject {
             # No name, no reference, not union/list member. Out of luck.
             # Set the name to the concationation of all non-autogenerated
             # names in the context (bottom to top) with an underscore separator.
-            $obj->name( $context->namePath( separator => "_" ) );
+            $obj->name( $context->name_path( separator => "_" ) );
             $obj->nameIsAutoGenerated(1);
         }
     }
@@ -1201,7 +1200,7 @@ sub _fixUpObject {
           if ( $context->targetNamespace );
     }
 
-    $self->_fixNameSpaces( $obj, $node, ['name'], localize => 1 );
+    $self->_fix_name_spaces( $obj, $node, ['name'], localize => 1 );
     return $obj;
 }
 
@@ -1214,7 +1213,7 @@ sub _fixUpObject {
 # This way, we don't deal with the namespace prefix but the NS URI itself.
 #
 #------------------------------------------------------------
-sub _fixNameSpaces {
+sub _fix_name_spaces {
     my $self     = shift;
     my $obj      = shift;
     my $node     = shift;

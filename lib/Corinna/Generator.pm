@@ -11,7 +11,7 @@ use IO::File;
 use File::Path;
 use File::Spec;
 use Class::Accessor;
-use Corinna::Util qw(mergeHash module_path);
+use Corinna::Util qw(merge_hash module_path);
 
 our @ISA = qw(Class::Accessor);
 
@@ -66,9 +66,9 @@ sub generate {
 	
 	print STDERR "\nGenerating code...\n" if ($verbose >=2);
 	if ($style =~ /single/) {
-		$self->_generateSingle(%$args);
+		$self->_generate_single(%$args);
 	}else {
-		$self->_generateMultiple(%$args);		
+		$self->_generate_multiple(%$args);		
 	}
 }
 
@@ -76,25 +76,25 @@ sub generate {
 # Generate a single chunk of code, putting all the classes (packages) into that
 # chunk. Then write to a module file if requested 
 # or otherwise evaluate it or just return it (depending on the 'mode')
-sub _generateSingle {
+sub _generate_single {
 	my $self 	= shift;
 	my $args	= {@_};
 	my $model	= $args->{model};
 	my $mode	= $args->{mode};
 	my $class_prefix = $args->{class_prefix};
 	my $module	= $args->{module} || $class_prefix;		
-	my $code	= $self->_fabricatePrelude(@_);	
+	my $code	= $self->_fabricate_prelude(@_);	
 	my $destination		= $args->{destination} || '/tmp/lib/perl/';
 	my $verbose	= $self->{verbose} || 0;
 
 	foreach my $items ($model->type(), 	$model->element()) {
 		foreach my $name (sort keys %$items) {
-			$code	.= $self->_fabricateCode(@_, object=>$items->{$name});
+			$code	.= $self->_fabricate_code(@_, object=>$items->{$name});
 		}
 	}
 	
 	$code .= $self->_fabricateHeaderModuleCode(@_);
-	$code .= $self->_fabricateMetaModuleCode(@_);
+	$code .= $self->_fabricate_meta_module_code(@_);
 	
 	# Perl modules must return TRUE
 	$code .= "\n\n1;\n";
@@ -116,11 +116,11 @@ sub _generateSingle {
 			$module =~ s/:$//;
 		}		
 				
-		my $file	= $module or  die "Pastor:Generator:_generateSingle:A 'module' name is required!\n"; 
+		my $file	= $module or  die "Pastor:Generator:_generate_single:A 'module' name is required!\n"; 
 		
 		$file 		= $destination .  $file . '.pm';	
 		$file 		=~ s/::/\//g;		
-		$self->_writeCode(@_, file=>$file, code=>$code);	
+		$self->_write_code(@_, file=>$file, code=>$code);	
 	}
 	return $self;		
 }
@@ -128,7 +128,7 @@ sub _generateSingle {
 #--------------------------------------------
 # Generate a multiple 'modules' of code, one for each class.
 # Then write the code to module files within the 'destination' directory 
-sub _generateMultiple {
+sub _generate_multiple {
 	my $self 			= shift;
 	my $args			= {@_};
 	my $model			= $args->{model};
@@ -142,19 +142,19 @@ sub _generateMultiple {
 	foreach my $items ($model->type(), 	$model->element()) {
 		foreach my $name (sort keys %$items) {
 			my $object 	= $items->{$name};
-			my $code	= $self->_fabricateCode(@_, object=>$object);
+			my $code	= $self->_fabricate_code(@_, object=>$object);
 			$code 	   	.= "\n\n__END__\n\n";
-			$code		.=$self->_fabricatePod(@_, object=>$object);
+			$code		.=$self->_fabricate_pod(@_, object=>$object);
 		
 			my $file = module_path(module => $object->class(), destination => $destination);	
-			$self->_writeCode(@_, file=>$file, code=>$code);
+			$self->_write_code(@_, file=>$file, code=>$code);
 		}
 	}
 
 	# META mdoule
-	my $code = $self->_fabricateMetaModuleCode(@_);
+	my $code = $self->_fabricate_meta_module_code(@_);
 	my $file = module_path(module => $metaModule, destination => $destination);				
-	$self->_writeCode(@_, file=>$file, code=>$code);
+	$self->_write_code(@_, file=>$file, code=>$code);
 	
 	
 	# HEADER module
@@ -163,7 +163,7 @@ sub _generateMultiple {
 		my $code = $self->_fabricateHeaderModuleCode(@_);
 		
 		my $file = module_path(module => $module, destination => $destination);				
-		$self->_writeCode(@_, file=>$file, code=>$code);
+		$self->_write_code(@_, file=>$file, code=>$code);
 	}
 	
 	return $self;		
@@ -187,7 +187,7 @@ sub _fabricateHeaderModuleCode {
 	while ($module =~ /:$/) {
 		$module =~ s/:$//;
 	}
-	$code  = _fabricatePrelude(@_) unless ($style =~ /single/i);
+	$code  = _fabricate_prelude(@_) unless ($style =~ /single/i);
 	$code .= "\n\npackage $module;\n";
 	
 	# USE
@@ -216,7 +216,7 @@ sub _fabricateHeaderModuleCode {
 #--------------------------------------------
 # Fabricate the first prelude stub of code for each module.
 # Needed only in the begining of each physical module file.
-sub _fabricatePrelude {
+sub _fabricate_prelude {
 	my $self 	= shift;
 	my $code = "";
 	
@@ -233,7 +233,7 @@ sub _fabricatePrelude {
 #--------------------------------------------
 # Fabricate the code for the META module.
 #--------------------------------------------
-sub _fabricateMetaModuleCode {
+sub _fabricate_meta_module_code {
 	my $self 			= shift;
 	my $args			= {@_};
 	my $model			= $args->{model};
@@ -243,7 +243,7 @@ sub _fabricateMetaModuleCode {
 	my $code			= "";
 		
 	
-	$code  = _fabricatePrelude(@_) unless ($style =~ /single/i);
+	$code  = _fabricate_prelude(@_) unless ($style =~ /single/i);
 	
 	$code .= "\n\npackage $module;\n";
 	
@@ -252,7 +252,7 @@ sub _fabricateMetaModuleCode {
 	
 	# Model	
 	$code .= "\n\n$module->Model( " ;		
-	$code .= _dumpObject($model);
+	$code .= _dump_object($model);
 	$code =~ s/\n$//;
 	$code .=" );";	
 
@@ -272,10 +272,10 @@ sub _fabricateMetaModuleCode {
 # Fabricate the code for one given class (type).
 # Can work in 'single' or 'multiple' style (knows to distinguish them).
 # Will create code in a separate 'package' section for the class.
-sub _fabricateCode {
+sub _fabricate_code {
 	my $self 	= shift;
 	my $args	= {@_};
-	my $object	= $args->{object} or die "Pastor: _fabricateCode: Need a type!\n";
+	my $object	= $args->{object} or die "Pastor: _fabricate_code: Need a type!\n";
 	my $style	= $args->{style};	
 	my $class	= $object->class();		
 	my $isa		= $object->baseClasses()  || [];	
@@ -285,7 +285,7 @@ sub _fabricateCode {
 	print STDERR "\nFabricating code for class '$class' ..." if ($verbose >= 3);
 
 	# PRELUDE
-	$code .= $self->_fabricatePrelude(@_) unless ($style =~ /single/i);
+	$code .= $self->_fabricate_prelude(@_) unless ($style =~ /single/i);
 
 	# package	
 	$code .= "\n\n#================================================================";
@@ -294,7 +294,7 @@ sub _fabricateCode {
 	# use
 	# in "single" style, we won't need the use clauses because all packages will be in one module.
 	unless ($style =~ /single/i) {	
-		my $uses = $self->_calculateUses($object, {@_});	
+		my $uses = $self->_calculate_uses($object, {@_});	
 		foreach my $use (sort keys %$uses) {
 			next if $use eq $class;	# We won't be using ourselves!
 			$code .= "\nuse $use;";
@@ -327,7 +327,7 @@ sub _fabricateCode {
 		
 		if (scalar(@$attributes) && $attribPfx) {
 			$code .= "\n\n# Attribute accessor aliases\n";
-			my $elementInfo	= (UNIVERSAL::can($object, "effectiveElementInfo")) ? $object->effectiveElementInfo() : {};		
+			my $elementInfo	= (UNIVERSAL::can($object, "effective_element_info")) ? $object->effective_element_info() : {};		
 			foreach my $attribute (@$attributes) {
 				next if defined($elementInfo->{$attribute});		# Attribute/Element name conflict. No alias possible
 				my $field = $attribPfx . $attribute;
@@ -346,7 +346,7 @@ sub _fabricateCode {
 	}else {		
 		$code .= "\n\n$class->XmlSchemaType( " ;
 	}
-	$code .= _dumpObject($object);
+	$code .= _dump_object($object);
 	$code =~ s/\n$//;
 	$code .=" );";	
 
@@ -363,7 +363,7 @@ sub _fabricateCode {
 #--------------------------------------------
 # Figure out the classes that need to be 'used' by a given class.
 # This is needed to create the 'use' stubs in code generation. 
-sub _calculateUses {
+sub _calculate_uses {
 	my $self 	= shift;
 	my $object	= shift; 
 	my $opts	= shift;
@@ -425,18 +425,18 @@ sub _calculateUses {
 	
 	
 	if (UNIVERSAL::can($object, "definition") && $object->definition()) {
-			mergeHash($result, $self->_calculateUses($object->definition(), $opts));
+			merge_hash($result, $self->_calculate_uses($object->definition(), $opts));
 	}
 
 	if (UNIVERSAL::can($object, "attributeInfo")) {
 		foreach my $attrib  (values %{$object->attributeInfo()} ){
-			mergeHash($result, $self->_calculateUses($attrib, $opts));
+			merge_hash($result, $self->_calculate_uses($attrib, $opts));
 		}
 	}
 
 	if (UNIVERSAL::can($object, "elementInfo")) {
 		foreach my $elem  (values %{$object->elementInfo()} ){
-			mergeHash($result, $self->_calculateUses($elem, $opts));
+			merge_hash($result, $self->_calculate_uses($elem, $opts));
 		}
 	}
 	
@@ -446,10 +446,10 @@ sub _calculateUses {
 #--------------------------------------------
 # Fabricate the POD for one given class (type).
 #--------------------------------------------
-sub _fabricatePod {
+sub _fabricate_pod {
 	my $self 	= shift;
 	my $args	= {@_};
-	my $object	= $args->{object} or die "Pastor: _fabricatePod: Need a type!\n";
+	my $object	= $args->{object} or die "Pastor: _fabricate_pod: Need a type!\n";
 	my $style	= $args->{style};	
 	my $class	= $object->class();		
 	my $isa		= $object->baseClasses()  || [];	
@@ -483,8 +483,8 @@ sub _fabricatePod {
 		my $attributes = $object->attributes();
 		my $attribPfx = "";
 		$attribPfx = $object->attributePrefix() if (UNIVERSAL::can($object, "attributePrefix"));
-		my $attribInfo = $object->effectiveAttributeInfo();
-		my $elementInfo = UNIVERSAL::can($object, 'effectiveElementInfo') ? $object->effectiveElementInfo() : {};
+		my $attribInfo = $object->effective_attribute_info();
+		my $elementInfo = UNIVERSAL::can($object, 'effective_element_info') ? $object->effective_element_info() : {};
 		
 		$pod .= "\n\n=head1 ATTRIBUTE ACCESSORS\n";
 		$pod .= "\n=over\n";
@@ -514,7 +514,7 @@ sub _fabricatePod {
 	
 	# CHILD ELEMENT accessors
 	if (UNIVERSAL::can($object, "elements") && scalar(@{$object->elements})) {
-		my $elementInfo = $object->effectiveElementInfo();
+		my $elementInfo = $object->effective_element_info();
 
 		$pod .= "\n\n=head1 CHILD ELEMENT ACCESSORS\n";
 		$pod .= "\n=over\n";
@@ -556,7 +556,7 @@ sub _fabricatePod {
 # Note the use of "Deepcopy"  and "Terse" 
 # in order to avoid having references in the dumped structure. 
 # So we have a clean structure with eventual duplication of data but witout references.
-sub _dumpObject {
+sub _dump_object {
 	my $object = shift;
 	my $d	 = Data::Dumper->new([$object]);
 	$d->Sortkeys(1);	
@@ -569,17 +569,17 @@ sub _dumpObject {
 # Write a chunk of code onto a given file.
 # Used for writing out the code to the output module files.
 # Works for both 'single' and 'multiple' style
-sub _writeCode {
+sub _write_code {
 	my $self 	= shift;
 	my $args	= {@_};
 	my $code	= $args->{code} || "";
-	my $file	= $args->{file} or die "Pastor : Generator : _writeCode : requires a file name\n";
+	my $file	= $args->{file} or die "Pastor : Generator : _write_code : requires a file name\n";
 	my $verbose	= $self->{verbose} || 0;
 	
 	print STDERR "\nWriting module '$file' ..." if ($verbose >=2);
 	my ($volume,$directories,$filebase) = File::Spec->splitpath( $file );
 	File::Path::mkpath($volume.$directories);
-	my $handle  = IO::File->new($file, "w") or die "Pastor : Generator : _writeCode : Can't open file : $file\n";
+	my $handle  = IO::File->new($file, "w") or die "Pastor : Generator : _write_code : Can't open file : $file\n";
 	
 	print $handle $code;
 	$handle->close();

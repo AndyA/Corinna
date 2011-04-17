@@ -11,7 +11,7 @@ use Class::Accessor;
 use Corinna::Schema::Object;
 use Corinna::Schema::NamespaceInfo;
 
-use Corinna::Util qw(mergeHash);
+use Corinna::Util qw(merge_hash);
 
 our @ISA = qw(Class::Accessor);
 
@@ -149,7 +149,7 @@ sub add {
 }
 
 #-------------------------------------------------------
-sub addNamespaceUri {
+sub add_namespace_uri {
     my $self    = shift;
     my $uri     = shift;
     my $verbose = $self->{verbose} || 0;
@@ -210,7 +210,7 @@ sub addNamespaceUri {
 }
 
 #-------------------------------------------------------
-sub getItem {
+sub get_item {
     my $self = shift;
     my $args = {@_};
     my $field;
@@ -266,34 +266,33 @@ sub _resolve {
 
     foreach my $items (@$hashList) {
         foreach my $name ( sort keys %$items ) {
-            $self->_resolveObject( $items->{$name}, $opts );
+            $self->_resolve_object( $items->{$name}, $opts );
 
         }
     }
 }
 
 #------------------------------------------------------------------
-sub _resolveObject {
+sub _resolve_object {
     my $self    = shift;
     my $object  = shift;
     my $opts    = shift;
-    my $verbose = $opts->{verbose} || 0;
 
-    $self->_resolveObjectRef( $object, $opts );
-    $self->_resolveObject( $object->definition(), $opts )
+    $self->_resolve_object_ref( $object, $opts );
+    $self->_resolve_object( $object->definition(), $opts )
       if ( $object->definition() );
 
-    $self->_resolveObjectAttributes( $object, $opts );
-    $self->_resolveObjectElements( $object, $opts );
+    $self->_resolve_object_attributes( $object, $opts );
+    $self->_resolve_object_elements( $object, $opts );
 
-    $self->_resolveObjectClass( $object, $opts );
-    $self->_resolveObjectBase( $object, $opts );
+    $self->_resolve_object_class( $object, $opts );
+    $self->_resolve_object_base( $object, $opts );
 
     return $object;
 }
 
 #------------------------------------------------------------------
-sub _resolveObjectRef {
+sub _resolve_object_ref {
     my $self    = shift;
     my $object  = shift;
     my $opts    = shift;
@@ -325,18 +324,18 @@ sub _resolveObjectRef {
     print STDERR "   Reference is $field\n" if ( $verbose >= 9 );
 
     my $hash   = $self->{$field};
-    my $refKey = $object->refKey;
+    my $ref_key = $object->ref_key;
 
-    print STDERR "   Resolving reference for '$refKey'\n" if ( $verbose >= 9 );
+    print STDERR "   Resolving reference for '$ref_key'\n" if ( $verbose >= 9 );
 
-    my $def = $hash->{$refKey};
+    my $def = $hash->{$ref_key};
     $object->definition($def);
 
     return $def;
 }
 
 #------------------------------------------------------------------
-sub _resolveObjectClass {
+sub _resolve_object_class {
     my $self    = shift;
     my $object  = shift;
     my $opts    = shift;
@@ -360,7 +359,7 @@ sub _resolveObjectClass {
           . $object->name
           . "' is a Type. Resolving class...\n"
           if ( $verbose >= 7 );
-        $object->class( $self->_typeToClass( $object->name(), $opts ) );
+        $object->class( $self->_type_to_class( $object->name(), $opts ) );
     }
     elsif ( UNIVERSAL::isa( $object, "Corinna::Schema::Element" )
         && ( $object->scope() =~ /global/ ) )
@@ -373,7 +372,7 @@ sub _resolveObjectClass {
           UNIVERSAL::can( $object, 'targetNamespace' )
           ? $object->targetNamespace
           : "";
-        my $pfx = $uri ? $self->namespaceClassPrefix($uri) : "";
+        my $pfx = $uri ? $self->namespace_class_prefix($uri) : "";
         $object->class( $class_prefix . $pfx . $object->name() );
     }
     elsif (UNIVERSAL::can( $object, "type" )
@@ -388,7 +387,7 @@ sub _resolveObjectClass {
           . "' Resolving class...\n"
           if ( $verbose >= 7 );
 
-        $object->class( $self->_typeToClass( $object->type(), $opts ) );
+        $object->class( $self->_type_to_class( $object->type(), $opts ) );
     }
 
     if (   UNIVERSAL::can( $object, "itemType" )
@@ -399,7 +398,7 @@ sub _resolveObjectClass {
           . $object->name
           . "' 'can' itemType() and itemClass(). Resolving class...\n"
           if ( $verbose >= 7 );
-        $object->itemClass( $self->_typeToClass( $object->itemType, $opts ) );
+        $object->itemClass( $self->_type_to_class( $object->itemType, $opts ) );
     }
 
     if (   UNIVERSAL::can( $object, "memberTypes" )
@@ -412,7 +411,7 @@ sub _resolveObjectClass {
           if ( $verbose >= 7 );
         my @mbts = split ' ', $object->memberTypes;
         $object->memberClasses(
-            [ map { $self->_typeToClass( $_, $opts ); } @mbts ] );
+            [ map { $self->_type_to_class( $_, $opts ); } @mbts ] );
     }
 
     if ( UNIVERSAL::can( $object, "baseClasses" ) ) {
@@ -424,7 +423,7 @@ sub _resolveObjectClass {
         if ( UNIVERSAL::can( $object, "base" ) && $object->base() ) {
 
             $object->baseClasses(
-                [ $self->_typeToClass( $object->base(), $opts ) ] );
+                [ $self->_type_to_class( $object->base(), $opts ) ] );
         }
         elsif (UNIVERSAL::isa( $object, "Corinna::Schema::Element" )
             && $object->type()
@@ -432,7 +431,7 @@ sub _resolveObjectClass {
         {
             $object->baseClasses(
                 [
-                    $self->_typeToClass( $object->type(), $opts ),
+                    $self->_type_to_class( $object->type(), $opts ),
                     "Corinna::Element"
                 ]
             );
@@ -453,7 +452,7 @@ sub _resolveObjectClass {
 }
 
 #------------------------------------------------------------------
-sub _resolveObjectAttributes {
+sub _resolve_object_attributes {
     my $self    = shift;
     my $object  = shift;
     my $opts    = shift;
@@ -471,7 +470,7 @@ sub _resolveObjectAttributes {
 
     foreach my $attribName (@$attributes) {
         my $attrib = $attribInfo->{$attribName};
-        $self->_resolveObject( $attrib, $opts );
+        $self->_resolve_object( $attrib, $opts );
 
         unless ( UNIVERSAL::isa( $attrib, "Corinna::Schema::Attribute" ) ) {
             my $a =
@@ -480,7 +479,7 @@ sub _resolveObjectAttributes {
               || $attrib;
             push @$newAttribs, @{ $a->attributes() }
               if UNIVERSAL::can( $a, "attributes" );
-            mergeHash( $attribInfo, $a->attributeInfo() )
+            merge_hash( $attribInfo, $a->attributeInfo() )
               if UNIVERSAL::can( $a, "attributeInfo" );
         }
         else {
@@ -493,7 +492,7 @@ sub _resolveObjectAttributes {
 }
 
 #------------------------------------------------------------------
-sub _resolveObjectElements {
+sub _resolve_object_elements {
     my $self    = shift;
     my $object  = shift;
     my $opts    = shift;
@@ -510,7 +509,7 @@ sub _resolveObjectElements {
 
     foreach my $elemName (@$elements) {
         my $elem = $elemInfo->{$elemName};
-        $self->_resolveObject( $elem, $opts );
+        $self->_resolve_object( $elem, $opts );
 
         unless ( UNIVERSAL::isa( $elem, "Corinna::Schema::Element" ) ) {
             my $e =
@@ -518,7 +517,7 @@ sub _resolveObjectElements {
               || $elem;
             push @$newElems, @{ $e->elements() }
               if UNIVERSAL::can( $e, "elements" );
-            mergeHash( $elemInfo, $e->elementInfo() )
+            merge_hash( $elemInfo, $e->elementInfo() )
               if UNIVERSAL::can( $e, "elementInfo" );
         }
         else {
@@ -531,7 +530,7 @@ sub _resolveObjectElements {
 }
 
 #------------------------------------------------------------------
-sub _resolveObjectBase {
+sub _resolve_object_base {
     my $self    = shift;
     my $object  = shift;
     my $opts    = shift;
@@ -547,17 +546,17 @@ sub _resolveObjectBase {
     my $baseType = $types->{$base};
 
     return undef unless ($baseType);
-    $self->_resolveObject( $baseType, $opts );
+    $self->_resolve_object( $baseType, $opts );
 
     if ( UNIVERSAL::can( $object, "xAttributes" ) ) {
         my $xattribs    = [];
         my $xattribInfo = {};
 
-        push @$xattribs, @{ $baseType->effectiveAttributes() };
-        mergeHash( $xattribInfo, $baseType->effectiveAttributeInfo() );
+        push @$xattribs, @{ $baseType->effective_attributes() };
+        merge_hash( $xattribInfo, $baseType->effective_attribute_info() );
 
         push @$xattribs, @{ $object->attributes() };
-        mergeHash( $xattribInfo, $object->attributeInfo() );
+        merge_hash( $xattribInfo, $object->attributeInfo() );
 
         print ' ' . scalar(@$xattribs) . ' attributes. ' if ( $verbose >= 5 );
 
@@ -571,11 +570,11 @@ sub _resolveObjectBase {
         my $xelems    = [];
         my $xelemInfo = {};
 
-        push @$xelems, @{ $baseType->effectiveElements() };
-        mergeHash( $xelemInfo, $baseType->effectiveElementInfo() );
+        push @$xelems, @{ $baseType->effective_elements() };
+        merge_hash( $xelemInfo, $baseType->effective_element_info() );
 
         push @$xelems, @{ $object->elements() };
-        mergeHash( $xelemInfo, $object->elementInfo() );
+        merge_hash( $xelemInfo, $object->elementInfo() );
 
         #		print ' ' . scalar(@$xelems) . ' elements. ';
         if (@$xelems) {
@@ -588,7 +587,7 @@ sub _resolveObjectBase {
 }
 
 #------------------------------------------------------------------
-sub _typeToClass {
+sub _type_to_class {
     my $self      = shift;
     my $type      = shift;
     my $opts      = shift;
@@ -625,10 +624,10 @@ sub _typeToClass {
 
         # Type with a namespace.
         my ( $localType, $uri ) = split /\|/, $type;
-        my $pfx = $self->namespaceClassPrefix($uri);
+        my $pfx = $self->namespace_class_prefix($uri);
 
         my $retval = $class_prefix . $pfx . $typePfx . $localType;
-        print STDERR "_typeToClass: from '$type'   to    '$retval'\n"
+        print STDERR "_type_to_class: from '$type'   to    '$retval'\n"
           if ( $verbose >= 9 );
 
         return $retval;
@@ -642,13 +641,13 @@ sub _typeToClass {
           UNIVERSAL::can( $object, 'targetNamespace' )
           ? $object->targetNamespace
           : "";
-        my $pfx = $uri ? $self->namespaceClassPrefix($uri) : "";
+        my $pfx = $uri ? $self->namespace_class_prefix($uri) : "";
         return $class_prefix . $pfx . $typePfx . $type;
     }
 }
 
 #-------------------------------------------------------
-sub namespaceClassPrefix {
+sub namespace_class_prefix {
     my $self = shift;
     my $uri  = shift;
 

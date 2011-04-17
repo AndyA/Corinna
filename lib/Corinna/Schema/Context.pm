@@ -33,13 +33,13 @@ sub new {
 }
 
 #------------------------------------------------------------
-sub topNode {
+sub top_node {
 	my $self 	= shift;
 	return $self->nodeStack()->peek();
 }
 
 #------------------------------------------------------------
-sub findNode {
+sub find_node {
 	my $self 		= shift;
 	my $args		= {@_};
 	my $class		= $args->{class};
@@ -62,7 +62,7 @@ sub findNode {
 }
 
 #------------------------------------------------------------
-sub namePath {
+sub name_path {
 	my $self 		= shift;
 	my $args		= {@_};
 	my $separator	= $args->{separator} || '/';

@@ -8,7 +8,6 @@ no warnings qw(uninitialized);
 
 require 5.008;
 
-
 use Corinna::Builtin;
 use Corinna::ComplexType;
 use Corinna::Element;
@@ -20,43 +19,49 @@ use Corinna::SimpleType;
 use Corinna::Stack;
 use Corinna::Util;
 
-
 use vars qw($VERSION);
-$VERSION	= '1.0.3';
+$VERSION = '1.0.3';
 
 #------------------------------------------------------------
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};	
-	return bless $self, $class;
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
+    return bless $self, $class;
 }
 
 #--------------------------------------------------------
 sub version {
-	return $Corinna::VERSION;
+    return $Corinna::VERSION;
 }
 
 #--------------------------------------------------------
 sub generate {
-	my $self 	= shift;
-	my $args	= {@_};
-	my $verbose	= $args->{verbose} || $self->{verbose} || 0;
-	
-	my $parser	=Corinna::Schema::Parser->new(verbose => $verbose);
-	my $model 	= $parser->parse(@_, verbose=>$verbose);
-	
-	print STDERR "\n========= AFTER PARSE =============\n". $model->dump() . "\n\n" if ($verbose >= 8); 	
-	
-	$model->resolve(@_, verbose=>$verbose);
-	print STDERR "\n========= AFTER RESOLVE =============\n". $model->dump() . "\n\n" 	if ($verbose >= 8);
-	
-	my $generator = Corinna::Generator->new(verbose=>$verbose);
-	my $result = $generator->generate(@_, model=>$model, verbose=>$verbose);
-	
-	print STDERR "\n========= AFTER GENERATE =============\n". $model->dump() . "\n\n" if ($verbose >= 8);
-	
-	return $result;
+    my $self    = shift;
+    my $args    = {@_};
+    my $verbose = $args->{verbose} || $self->{verbose} || 0;
+
+    my $parser = Corinna::Schema::Parser->new( verbose => $verbose );
+    my $model = $parser->parse( @_, verbose => $verbose );
+
+    print STDERR "\n========= AFTER PARSE =============\n"
+      . $model->dump() . "\n\n"
+      if ( $verbose >= 8 );
+
+    $model->resolve( @_, verbose => $verbose );
+    print STDERR "\n========= AFTER RESOLVE =============\n"
+      . $model->dump() . "\n\n"
+      if ( $verbose >= 8 );
+
+    my $generator = Corinna::Generator->new( verbose => $verbose );
+    my $result =
+      $generator->generate( @_, model => $model, verbose => $verbose );
+
+    print STDERR "\n========= AFTER GENERATE =============\n"
+      . $model->dump() . "\n\n"
+      if ( $verbose >= 8 );
+
+    return $result;
 }
 
 1;

@@ -10,7 +10,7 @@ use XML::LibXML;
 use Corinna::Type;
 
 use Scalar::Util qw(reftype);
-use Corinna::Util  qw(getAttributeHash getChildrenHashDOM);
+use Corinna::Util  qw(get_attribute_hash get_children_hash_dom);
 
 our @ISA = qw(Corinna::Type);
 

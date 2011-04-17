@@ -22,14 +22,14 @@ Corinna::Builtin::base64Binary->XmlSchemaType( bless( {
 
 
 #-----------------------------------------------------------------
-sub toBinary {
+sub to_binary {
 	my $self  = shift;
 	my $value = $self->__value() . "";	
 	return MIME::Base64::decode($value)
 }
 
 #-----------------------------------------------------------------
-sub setFromBinary($$) {
+sub set_from_binary($$) {
 	my $self  = shift;
 	return $self->__value(MIME::Base64::encode($_[0], ''));
 }
@@ -37,9 +37,9 @@ sub setFromBinary($$) {
 #-----------------------------------------------------------------
 # A CONSTRUCTOR
 #-----------------------------------------------------------------
-sub fromBinary($$) {
+sub from_binary($$) {
 	my $self  	= shift->new();
-	return $self->setFromBinary(@_);
+	return $self->set_from_binary(@_);
 }
 
 
@@ -75,28 +75,28 @@ more methods.
 
 =head2 CONSTRUCTORS
  
-=head4 fromBinary() 
+=head4 from_binary() 
 
-  my $object = Corinna::Builtin::base64Binary->fromBinary($binary_data)
+  my $object = Corinna::Builtin::base64Binary->from_binary($binary_data)
 
 B<CONSTRUCTOR>. 
 
-The B<fromBinary()> constructor method instantiates a new object from a binary
+The B<from_binary()> constructor method instantiates a new object from a binary
 data chunk. It is inheritable. The necessary conversion is done within the method.	
 
 
 =head2 OTHER METHODS
 
-=head4 setFromBinary()
+=head4 set_from_binary()
 
-	$object->setFromBinary($binary_data);
+	$object->set_from_binary($binary_data);
 	
 This method sets the value of the object from a chunk of binary data. 
 The necessary conversion is done within the method.	
 
-=head4 toBinary()
+=head4 to_binary()
 
-	my $binary_data = $object->toBinary();
+	my $binary_data = $object->to_binary();
 	
 This method returns the value of the object as a chunk of binary data. 
 The necessary conversion is done within the method.	

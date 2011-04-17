@@ -11,9 +11,9 @@ use Exporter;
 
 our @ISA       = qw (Exporter);
 our @EXPORT    = qw();
-our @EXPORT_OK = qw( 	mergeHash
-  getAttributeHash
-  getChildrenHashDOM
+our @EXPORT_OK = qw( 	merge_hash
+  get_attribute_hash
+  get_children_hash_dom
 
   module_path
 
@@ -28,7 +28,7 @@ our @EXPORT_OK = qw( 	mergeHash
 #------------------------------------------------------------------
 # merge h2 into h1;
 #------------------------------------------------------------------
-sub mergeHash {
+sub merge_hash {
     my $h1 = shift;
     my $h2 = shift;
 
@@ -43,7 +43,7 @@ sub mergeHash {
 # This is a utility function (not a method) that will get all the attributes
 # of an DOM element into a hash and return that hash.
 #-------------------------------------------------------------
-sub getAttributeHash {
+sub get_attribute_hash {
     my $node    = shift;
     my $attribs = {};
 
@@ -63,7 +63,7 @@ sub getAttributeHash {
 # This is a utility function (not a method) that will get all the children
 # of an DOM element into a hash of arrays and return that hash.
 #-------------------------------------------------------------
-sub getChildrenHashDOM {
+sub get_children_hash_dom {
     my $node   = shift;
     my $result = {};
 
