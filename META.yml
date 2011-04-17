@@ -1,31 +1,200 @@
---- #YAML:1.0
-name:                XML-Pastor
-version:             1.0.3
-abstract:            Generate Perl classes with XML bindings starting from a W3C XSD Schema
-license:             perl
-author:              
-    - Ayhan Ulusoy <dev@ulusoy.name>
-generated_by:        ExtUtils::MakeMaker version 6.44
-distribution_type:   module
-requires:     
-    Carp:                          0
-    Class::Accessor:               0
-    Class::Data::Inheritable:      0
-    Cwd:                           0
-    Data::Dumper:                  0
-    Data::HashArray:               0
-    File::chdir:                   0
-    File::Path:                    0
-    File::Spec:                    0
-    Getopt::Long:                  0
-    IO::File:                      0
-    LWP::UserAgent:                0
-    MIME::Base64:                  0
-    Pod::Usage:                    0
-    Scalar::Util:                  0
-    Test::More:                    0
-    URI:                           0
-    XML::LibXML:                   1.66
+---
+abstract: 'Generate Perl classes with XML bindings starting from a W3C XSD Schema'
+author:
+  - "Curtis 'Ovid' Poe <ovid@cpan.org>"
+build_requires:
+  Test::Most: 0.23
+configure_requires:
+  Module::Build: 0.36
+generated_by: 'Module::Build version 0.3607'
+license: perl
 meta-spec:
-    url:     http://module-build.sourceforge.net/META-spec-v1.3.html
-    version: 1.3
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Corinna
+provides:
+  Corinna:
+    file: lib/Corinna.pm
+    version: v1.0.3
+  Corinna::Builtin:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::ENTITIES:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::ENTITY:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::ID:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::IDREF:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::IDREFS:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::List:
+    file: lib/Corinna/Builtin/List.pm
+  Corinna::Builtin::NCName:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::NMTOKEN:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::NMTOKENS:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::NOTATION:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::Name:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::Numeric:
+    file: lib/Corinna/Builtin/Numeric.pm
+  Corinna::Builtin::QName:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::Scalar:
+    file: lib/Corinna/Builtin/Scalar.pm
+  Corinna::Builtin::SimpleType:
+    file: lib/Corinna/Builtin/SimpleType.pm
+  Corinna::Builtin::Union:
+    file: lib/Corinna/Builtin/Union.pm
+  Corinna::Builtin::anySimpleType:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::anyURI:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::base64Binary:
+    file: lib/Corinna/Builtin/base64Binary.pm
+  Corinna::Builtin::boolean:
+    file: lib/Corinna/Builtin/boolean.pm
+  Corinna::Builtin::byte:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::date:
+    file: lib/Corinna/Builtin/date.pm
+  Corinna::Builtin::dateTime:
+    file: lib/Corinna/Builtin/dateTime.pm
+  Corinna::Builtin::decimal:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::double:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::duration:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::float:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::gDay:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::gMonth:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::gMonthDay:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::gYear:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::gYearMonth:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::hexBinary:
+    file: lib/Corinna/Builtin/hexBinary.pm
+  Corinna::Builtin::int:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::integer:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::language:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::long:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::negativeInteger:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::nonNegativeInteger:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::nonPositiveInteger:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::normalizedString:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::positiveInteger:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::short:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::string:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::time:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::token:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::unsignedByte:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::unsignedInt:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::unsignedLong:
+    file: lib/Corinna/Builtin.pm
+  Corinna::Builtin::unsignedShort:
+    file: lib/Corinna/Builtin.pm
+  Corinna::ComplexType:
+    file: lib/Corinna/ComplexType.pm
+  Corinna::Element:
+    file: lib/Corinna/Element.pm
+  Corinna::Generator:
+    file: lib/Corinna/Generator.pm
+  Corinna::Meta:
+    file: lib/Corinna/Meta.pm
+  Corinna::NodeArray:
+    file: lib/Corinna/NodeArray.pm
+    version: v1.0.1
+  Corinna::Pastorize:
+    file: lib/Corinna/Pastorize.pm
+    version: v1.0.1
+  Corinna::Schema:
+    file: lib/Corinna/Schema.pm
+  Corinna::Schema::Attribute:
+    file: lib/Corinna/Schema/Attribute.pm
+  Corinna::Schema::AttributeGroup:
+    file: lib/Corinna/Schema/AttributeGroup.pm
+  Corinna::Schema::ComplexType:
+    file: lib/Corinna/Schema/ComplexType.pm
+  Corinna::Schema::Context:
+    file: lib/Corinna/Schema/Context.pm
+  Corinna::Schema::Documentation:
+    file: lib/Corinna/Schema/Documentation.pm
+  Corinna::Schema::Element:
+    file: lib/Corinna/Schema/Element.pm
+  Corinna::Schema::Group:
+    file: lib/Corinna/Schema/Group.pm
+  Corinna::Schema::List:
+    file: lib/Corinna/Schema/List.pm
+  Corinna::Schema::Model:
+    file: lib/Corinna/Schema/Model.pm
+  Corinna::Schema::NamespaceInfo:
+    file: lib/Corinna/Schema/NamespaceInfo.pm
+  Corinna::Schema::Object:
+    file: lib/Corinna/Schema/Object.pm
+  Corinna::Schema::Parser:
+    file: lib/Corinna/Schema/Parser.pm
+  Corinna::Schema::SimpleType:
+    file: lib/Corinna/Schema/SimpleType.pm
+  Corinna::Schema::Type:
+    file: lib/Corinna/Schema/Type.pm
+  Corinna::Schema::Union:
+    file: lib/Corinna/Schema/Union.pm
+  Corinna::SimpleType:
+    file: lib/Corinna/SimpleType.pm
+  Corinna::Stack:
+    file: lib/Corinna/Stack.pm
+    version: 0.01
+  Corinna::Type:
+    file: lib/Corinna/Type.pm
+  Corinna::Util:
+    file: lib/Corinna/Util.pm
+requires:
+  Carp: 0
+  Class::Accessor: 0
+  Class::Data::Inheritable: 0
+  Cwd: 0
+  Data::Dumper: 0
+  Data::HashArray: 0
+  File::Path: 0
+  File::Spec: 0
+  File::chdir: 0
+  Getopt::Long: 0
+  IO::File: 0
+  LWP::UserAgent: 0
+  MIME::Base64: 0
+  Moose: 1
+  Pod::Usage: 0
+  Scalar::Util: 0
+  Test::More: 0
+  URI: 0
+  XML::LibXML: 1.66
+  perl: 5.008
+resources:
+  license: http://dev.perl.org/licenses/
+  repository: https://github.com/Ovid/Corinna
+version: v1.0.3
