@@ -15,542 +15,650 @@ use Corinna::Util qw(mergeHash);
 
 our @ISA = qw(Class::Accessor);
 
-Corinna::Schema::Model->mk_accessors( qw(type element group attribute attributeGroup defaultNamespace namespaces namespaceCounter));
+Corinna::Schema::Model->mk_accessors(
+    qw(type element group attribute attributeGroup defaultNamespace namespaces namespaceCounter)
+);
 
 sub new {
-	my $proto 	= shift;
-	my $class	= ref($proto) || $proto;
-	my $self = {@_};
-	
-	unless ($self->{type}) {
-		$self->{type} = {};
-	}
-	unless ($self->{element}) {
-		$self->{element} = {};
-	}
+    my $proto = shift;
+    my $class = ref($proto) || $proto;
+    my $self  = {@_};
 
-	unless ($self->{group}) {
-		$self->{group} = {};
-	}
-	
-	unless ($self->{attribute}) {
-		$self->{attribute} = {};
-	}
-	
-	unless ($self->{attributeGroup}) {
-		$self->{attributeGroup} = {};
-	}
-	
-	unless ($self->{namespaces}) {
-		$self->{namespaces} = {};
-	}
+    unless ( $self->{type} ) {
+        $self->{type} = {};
+    }
+    unless ( $self->{element} ) {
+        $self->{element} = {};
+    }
 
-	unless ($self->{namespaceCounter}) {
-		$self->{namespaceCounter} = 0
-	}
-	
-	return bless $self, $class;
+    unless ( $self->{group} ) {
+        $self->{group} = {};
+    }
+
+    unless ( $self->{attribute} ) {
+        $self->{attribute} = {};
+    }
+
+    unless ( $self->{attributeGroup} ) {
+        $self->{attributeGroup} = {};
+    }
+
+    unless ( $self->{namespaces} ) {
+        $self->{namespaces} = {};
+    }
+
+    unless ( $self->{namespaceCounter} ) {
+        $self->{namespaceCounter} = 0;
+    }
+
+    return bless $self, $class;
 }
 
 #-------------------------------------------------------
 sub xml_item {
-	my $self 	= shift;
-	my $name	= shift;
-	my $nsUri	= shift;
-	my $verbose = 0;
-	
-	if (!$nsUri && $self->defaultNamespace) {
-		$nsUri = $self->defaultNamespace()->uri();
-	}
-	
-	my $key = $nsUri ? "$name|$nsUri" : $name;
-	
-	print STDERR "Model item: name = '$name',   key = '$key'\n" if ($verbose >= 9);
-	my $item;
-	foreach my $hname (qw(element type group attribute attributeGroup)) {
-		my $items = $self->{$hname};
-		$item = $items->{$key};
-		last if defined($item);
-	}
+    my $self    = shift;
+    my $name    = shift;
+    my $nsUri   = shift;
+    my $verbose = 0;
 
-	print STDERR "Found item: name = '$name'\n" if (defined ($item) && ($verbose >= 9));
-		
-	return $item;
-	
+    if ( !$nsUri && $self->defaultNamespace ) {
+        $nsUri = $self->defaultNamespace()->uri();
+    }
+
+    my $key = $nsUri ? "$name|$nsUri" : $name;
+
+    print STDERR "Model item: name = '$name',   key = '$key'\n"
+      if ( $verbose >= 9 );
+    my $item;
+    foreach my $hname (qw(element type group attribute attributeGroup)) {
+        my $items = $self->{$hname};
+        $item = $items->{$key};
+        last if defined($item);
+    }
+
+    print STDERR "Found item: name = '$name'\n"
+      if ( defined($item) && ( $verbose >= 9 ) );
+
+    return $item;
+
 }
 
 #-------------------------------------------------------
 sub xml_item_class {
-	my $self 	= shift;
-	my $item = $self->xml_item(@_);
-	
-	return undef unless (defined($item));
-	return $item->class || ($item->definition && $item->definition->class);		
+    my $self = shift;
+    my $item = $self->xml_item(@_);
+
+    return undef unless ( defined($item) );
+    return $item->class || ( $item->definition && $item->definition->class );
 }
 
 #-------------------------------------------------------
 sub add {
-	my $self = shift;
-	my $args = {@_};
-	my $field;
-	my $newItem;
-	
-	
-	unless (defined($field)) {
-		$newItem = $args->{object} || $args->{item} || $args->{node};
-		SWITCH: {
-			UNIVERSAL::isa($newItem, "Corinna::Schema::Type")			and do {$field="type"; last SWITCH;};
-			UNIVERSAL::isa($newItem, "Corinna::Schema::Element")		and do {$field="element"; last SWITCH;};
-			UNIVERSAL::isa($newItem, "Corinna::Schema::Group")			and do {$field="group"; last SWITCH;};	
-			UNIVERSAL::isa($newItem, "Corinna::Schema::Attribute")		and do {$field="attribute"; last SWITCH;};
-			UNIVERSAL::isa($newItem, "Corinna::Schema::AttributeGroup")	and do {$field="attributeGroup"; last SWITCH;};			
-		}		
-	}
+    my $self = shift;
+    my $args = {@_};
+    my $field;
+    my $newItem;
 
-	unless (defined($field)) {
-		foreach my $arg (qw(type element group attribute attributeGroup)) {
-			if (defined ($args->{$arg})) {
-				$field = $arg;
-				$newItem = $args->{$field};
-				last;
-			}
-		}
-	}
+    unless ( defined($field) ) {
+        $newItem = $args->{object} || $args->{item} || $args->{node};
+      SWITCH: {
+            UNIVERSAL::isa( $newItem, "Corinna::Schema::Type" )
+              and do { $field = "type"; last SWITCH; };
+            UNIVERSAL::isa( $newItem, "Corinna::Schema::Element" )
+              and do { $field = "element"; last SWITCH; };
+            UNIVERSAL::isa( $newItem, "Corinna::Schema::Group" )
+              and do { $field = "group"; last SWITCH; };
+            UNIVERSAL::isa( $newItem, "Corinna::Schema::Attribute" )
+              and do { $field = "attribute"; last SWITCH; };
+            UNIVERSAL::isa( $newItem, "Corinna::Schema::AttributeGroup" )
+              and do { $field = "attributeGroup"; last SWITCH; };
+        }
+    }
 
-	
-	unless ( defined($field) ) {
-		return undef;
-	}
-	
-	my $items 	= $self->{$field};
-	my $key 	= UNIVERSAL::can($newItem, "key") ? $newItem->key() : (UNIVERSAL::can($newItem, "name") ? $newItem->name : '_anonymous_'); 
-	if (defined(my $oldItem=$items->{$key})) {
-		unless (UNIVERSAL::can($oldItem, 'isRedefinable') && $oldItem->isRedefinable() ) {
-			die "Pastor : $field already defined : '$key'\\n"; 
-		}
-	}
-	$newItem->isRedefinable(1) if ($args->{operation} !~ /redefine/i) && UNIVERSAL::can($newItem, 'isRedefinable');
-	$items->{$key} = $newItem;	
-	
+    unless ( defined($field) ) {
+        foreach my $arg (qw(type element group attribute attributeGroup)) {
+            if ( defined( $args->{$arg} ) ) {
+                $field   = $arg;
+                $newItem = $args->{$field};
+                last;
+            }
+        }
+    }
+
+    unless ( defined($field) ) {
+        return undef;
+    }
+
+    my $items = $self->{$field};
+    my $key =
+      UNIVERSAL::can( $newItem, "key" )
+      ? $newItem->key()
+      : ( UNIVERSAL::can( $newItem, "name" ) ? $newItem->name : '_anonymous_' );
+    if ( defined( my $oldItem = $items->{$key} ) ) {
+        unless ( UNIVERSAL::can( $oldItem, 'isRedefinable' )
+            && $oldItem->isRedefinable() )
+        {
+            die "Pastor : $field already defined : '$key'\\n";
+        }
+    }
+    $newItem->isRedefinable(1)
+      if ( $args->{operation} !~ /redefine/i )
+      && UNIVERSAL::can( $newItem, 'isRedefinable' );
+    $items->{$key} = $newItem;
+
 }
 
 #-------------------------------------------------------
 sub addNamespaceUri {
-	my $self = shift;
-	my $uri	 = shift;
-	my $verbose = $self->{verbose} || 0;
-	
-	return undef unless(defined($uri));
-	
-	my $nsh  = $self->namespaces();
-	
-	print STDERR "*** Adding Namespace URI to the schema model => '$uri'\n" if ($verbose >= 5);
-	
-	if (exists ($nsh->{$uri})) {
-		# URI is already in use 
-		my $ns = $nsh->{$uri};
-		$ns->usageCount($ns->usageCount+1);
-		return $ns;
-	}else {
-		# URI is not already there
-		my $nsPfx     = undef;
-		my $classPfx  = undef;
-		my $id		  = 0;
-		
-		# The counter serves for id purposes.
-		my $nsc = $self->namespaceCounter();
-		
-		if ($nsc) {
-			# There is at least one other target namespace alreday in there
-			$id			= $nsc+1;
-			$nsPfx 		= "ns" . sprintf("%03d", $id);
-			$classPfx 	= $nsPfx;
-		}
-		
-		
-		# Add the URI to the namspace hash
-		my $ns = Corinna::Schema::NamespaceInfo->new(uri=> $uri, id => $id, usageCount=>1, nsPrefix => $nsPfx, classPrefix => $classPfx);
-		$nsh->{$uri} = $ns;
-		
-		# This is the first namespace that is declared. Make it the default.
-		unless ($nsc) {
-			$self->defaultNamespace($ns);
-		}
-		
-		# Increment the id counter
-		$self->namespaceCounter( $self->namespaceCounter + 1);
-		
-		return $ns;
-	}	
-	
-	
+    my $self    = shift;
+    my $uri     = shift;
+    my $verbose = $self->{verbose} || 0;
+
+    return undef unless ( defined($uri) );
+
+    my $nsh = $self->namespaces();
+
+    print STDERR "*** Adding Namespace URI to the schema model => '$uri'\n"
+      if ( $verbose >= 5 );
+
+    if ( exists( $nsh->{$uri} ) ) {
+
+        # URI is already in use
+        my $ns = $nsh->{$uri};
+        $ns->usage_count( $ns->usage_count + 1 );
+        return $ns;
+    }
+    else {
+
+        # URI is not already there
+        my $nsPfx    = undef;
+        my $classPfx = undef;
+        my $id       = 0;
+
+        # The counter serves for id purposes.
+        my $nsc = $self->namespaceCounter();
+
+        if ($nsc) {
+
+            # There is at least one other target namespace alreday in there
+            $id       = $nsc + 1;
+            $nsPfx    = "ns" . sprintf( "%03d", $id );
+            $classPfx = $nsPfx;
+        }
+
+        # Add the URI to the namspace hash
+        my $ns = Corinna::Schema::NamespaceInfo->new(
+            uri          => $uri,
+            id           => $id,
+            usage_count  => 1,
+            ns_prefix    => $nsPfx,
+            class_prefix => $classPfx
+        );
+        $nsh->{$uri} = $ns;
+
+        # This is the first namespace that is declared. Make it the default.
+        unless ($nsc) {
+            $self->defaultNamespace($ns);
+        }
+
+        # Increment the id counter
+        $self->namespaceCounter( $self->namespaceCounter + 1 );
+
+        return $ns;
+    }
+
 }
 
 #-------------------------------------------------------
 sub getItem {
-	my $self = shift;
-	my $args = {@_};
-	my $field;
-	my $itemName;
-		
-	unless (defined($field)) {
-		foreach my $arg (qw(type element group attribute attributeGroup)) {
-			if (defined ($args->{$arg})) {
-				$field = $arg;
-				$itemName = $args->{$field};
-				last;
-			}
-		}
-	}
+    my $self = shift;
+    my $args = {@_};
+    my $field;
+    my $itemName;
 
-	unless ( defined($field) ) {
-		return undef;
-	}
-	
-	my $items 	= $self->{$field};
-	return $items->{$itemName};
+    unless ( defined($field) ) {
+        foreach my $arg (qw(type element group attribute attributeGroup)) {
+            if ( defined( $args->{$arg} ) ) {
+                $field    = $arg;
+                $itemName = $args->{$field};
+                last;
+            }
+        }
+    }
+
+    unless ( defined($field) ) {
+        return undef;
+    }
+
+    my $items = $self->{$field};
+    return $items->{$itemName};
 }
 
 #------------------------------------------------------------------
 sub dump {
-	my $self = shift;
-	my $d	 = Data::Dumper->new([$self]);
-	$d->Sortkeys(1);
-	
-#	$d->Deepcopy(1);
-#	$d->Terse(1);	 
-	return $d->Dump();
+    my $self = shift;
+    my $d = Data::Dumper->new( [$self] );
+    $d->Sortkeys(1);
+
+    #	$d->Deepcopy(1);
+    #	$d->Terse(1);
+    return $d->Dump();
 }
 
 #------------------------------------------------------------------
 sub resolve {
-	my $self 	= shift;
-	my $opts	= {@_};
-	my $verbose = $opts->{verbose} || 0;
-	
-	print "\n==== Resolving schema model ... ====\n" if ($verbose >= 3);
-	
-	$self->_resolve($opts);
+    my $self    = shift;
+    my $opts    = {@_};
+    my $verbose = $opts->{verbose} || 0;
+
+    print "\n==== Resolving schema model ... ====\n" if ( $verbose >= 3 );
+
+    $self->_resolve($opts);
 }
 
 #------------------------------------------------------------------
 sub _resolve {
-	my $self 		= shift;
-	my $opts		= shift;
-	my $hashList 	= [$self->group(), $self->attributeGroup, $self->type(), $self->element()];
-			
-	foreach my $items (@$hashList) {
-		foreach my $name (sort keys %$items) {
-			$self->_resolveObject($items->{$name}, $opts);			
-			
-		}
-	}
+    my $self = shift;
+    my $opts = shift;
+    my $hashList =
+      [ $self->group(), $self->attributeGroup, $self->type(),
+        $self->element() ];
+
+    foreach my $items (@$hashList) {
+        foreach my $name ( sort keys %$items ) {
+            $self->_resolveObject( $items->{$name}, $opts );
+
+        }
+    }
 }
 
 #------------------------------------------------------------------
 sub _resolveObject {
-	my $self 		= shift;
-	my $object		= shift;
-	my $opts		= shift;
-	my $verbose		= $opts->{verbose} || 0;
-	
-	$self->_resolveObjectRef($object, $opts);	
-	$self->_resolveObject($object->definition(), $opts)  if ($object->definition());
-	
-	$self->_resolveObjectAttributes($object, $opts);	
-	$self->_resolveObjectElements($object, $opts);	
-	
-	$self->_resolveObjectClass($object, $opts);
-	$self->_resolveObjectBase($object, $opts);
-	
-	return $object;	
+    my $self    = shift;
+    my $object  = shift;
+    my $opts    = shift;
+    my $verbose = $opts->{verbose} || 0;
+
+    $self->_resolveObjectRef( $object, $opts );
+    $self->_resolveObject( $object->definition(), $opts )
+      if ( $object->definition() );
+
+    $self->_resolveObjectAttributes( $object, $opts );
+    $self->_resolveObjectElements( $object, $opts );
+
+    $self->_resolveObjectClass( $object, $opts );
+    $self->_resolveObjectBase( $object, $opts );
+
+    return $object;
 }
 
 #------------------------------------------------------------------
 sub _resolveObjectRef {
-	my $self 		= shift;
-	my $object		= shift;
-	my $opts		= shift;
-	my $verbose		= $opts->{verbose} || 0;
-	
-	return $object unless ( UNIVERSAL::can($object, "ref") && $object->ref() );
-	
-	print STDERR "  Resolving REFERENCES for object '" . $object->name . "' ...\n" if ($verbose >= 6);
-	
-	my $field 	= undef;
-		
-	SWITCH: {
-		UNIVERSAL::isa($object, "Corinna::Schema::Type")			and do {$field="type"; last SWITCH;};
-		UNIVERSAL::isa($object, "Corinna::Schema::Element")			and do {$field="element"; last SWITCH;};
-		UNIVERSAL::isa($object, "Corinna::Schema::Group")			and do {$field="group"; last SWITCH;};	
-		UNIVERSAL::isa($object, "Corinna::Schema::Attribute")		and do {$field="attribute"; last SWITCH;};
-		UNIVERSAL::isa($object, "Corinna::Schema::AttributeGroup")	and do {$field="attributeGroup"; last SWITCH;};			
-	}		
+    my $self    = shift;
+    my $object  = shift;
+    my $opts    = shift;
+    my $verbose = $opts->{verbose} || 0;
 
-	print STDERR "   Reference is $field\n" if ($verbose >=9);
-	
-	my $hash 	= $self->{$field};	
-	my $refKey	= $object->refKey;
-	
-	print STDERR "   Resolving reference for '$refKey'\n" if ($verbose >=9);
-	
-	my $def		= $hash->{$refKey};
-	$object->definition($def);
-	
-	return $def;
+    return $object
+      unless ( UNIVERSAL::can( $object, "ref" ) && $object->ref() );
+
+    print STDERR "  Resolving REFERENCES for object '"
+      . $object->name
+      . "' ...\n"
+      if ( $verbose >= 6 );
+
+    my $field = undef;
+
+  SWITCH: {
+        UNIVERSAL::isa( $object, "Corinna::Schema::Type" )
+          and do { $field = "type"; last SWITCH; };
+        UNIVERSAL::isa( $object, "Corinna::Schema::Element" )
+          and do { $field = "element"; last SWITCH; };
+        UNIVERSAL::isa( $object, "Corinna::Schema::Group" )
+          and do { $field = "group"; last SWITCH; };
+        UNIVERSAL::isa( $object, "Corinna::Schema::Attribute" )
+          and do { $field = "attribute"; last SWITCH; };
+        UNIVERSAL::isa( $object, "Corinna::Schema::AttributeGroup" )
+          and do { $field = "attributeGroup"; last SWITCH; };
+    }
+
+    print STDERR "   Reference is $field\n" if ( $verbose >= 9 );
+
+    my $hash   = $self->{$field};
+    my $refKey = $object->refKey;
+
+    print STDERR "   Resolving reference for '$refKey'\n" if ( $verbose >= 9 );
+
+    my $def = $hash->{$refKey};
+    $object->definition($def);
+
+    return $def;
 }
-
 
 #------------------------------------------------------------------
 sub _resolveObjectClass {
-	my $self 		= shift;
-	my $object		= shift;
-	my $opts		= shift;
-	my $verbose		= $opts->{verbose} || 0;
-	$opts->{object} = $object;
-	
-	my $class_prefix = $opts->{class_prefix} || '';
-	while (($class_prefix) && ($class_prefix !~ /::$/)) {
-		$class_prefix .= ':';
-	}
-		
-	print STDERR "  Resolving CLASS for object '" . $object->name . "' ... \n" if ($verbose >= 6);
-	
-	if (UNIVERSAL::can($object, "metaClass")) {
-		$object->metaClass($class_prefix . "Pastor::Meta");
-	}
-	
-	
-	if (UNIVERSAL::isa($object, "Corinna::Schema::Type")) {
-		print "   object '" . $object->name . "' is a Type. Resolving class...\n" if ($verbose >= 7);
-		$object->class($self->_typeToClass($object->name(), $opts));
-	}elsif (UNIVERSAL::isa($object, "Corinna::Schema::Element") && ($object->scope() =~ /global/)) {
-		print "   object '" . $object->name . "' is a global element. Resolving class...\n" if ($verbose >= 7);
-		my $uri = UNIVERSAL::can($object, 'targetNamespace') ? $object->targetNamespace : "";
-		my $pfx = $uri ? $self->namespaceClassPrefix($uri) : ""; 
-		$object->class($class_prefix. $pfx . $object->name());
-	}elsif(UNIVERSAL::can($object, "type") && UNIVERSAL::can($object, "class")) {
-		print "   object '" . ($object->name || ''). "' 'can' type() and class(). TYPE='". ($object->type() || '') . "' CLASS='" . ($object->class() || '') . "' Resolving class...\n"  if ($verbose >= 7);
-		
-		$object->class($self->_typeToClass($object->type(), $opts));		
-	}	
+    my $self    = shift;
+    my $object  = shift;
+    my $opts    = shift;
+    my $verbose = $opts->{verbose} || 0;
+    $opts->{object} = $object;
 
-	if (UNIVERSAL::can($object, "itemType") && UNIVERSAL::can($object, "itemClass") && $object->itemType) {
-		print "   object '" . $object->name . "' 'can' itemType() and itemClass(). Resolving class...\n" if ($verbose >= 7); 							
-		$object->itemClass($self->_typeToClass($object->itemType, $opts));
-	}
+    my $class_prefix = $opts->{class_prefix} || '';
+    while ( ($class_prefix) && ( $class_prefix !~ /::$/ ) ) {
+        $class_prefix .= ':';
+    }
 
-	if (UNIVERSAL::can($object, "memberTypes") && UNIVERSAL::can($object, "memberClasses") && $object->memberTypes) {
-		print "   object '" . $object->name . "' 'can' memberTypes() and memberClasses(). Resolving class...\n" if ($verbose >= 7); 							
-		my @mbts = split ' ', $object->memberTypes;
-		$object->memberClasses([map {$self->_typeToClass($_, $opts);} @mbts]);
-	}
+    print STDERR "  Resolving CLASS for object '" . $object->name . "' ... \n"
+      if ( $verbose >= 6 );
 
-	
-	if (UNIVERSAL::can($object, "baseClasses")) {
-		print "   object '" . $object->name . "' 'can' baseClasses(). Resolving class...\n" if ($verbose >= 7); 							
-		
-		if  (UNIVERSAL::can($object, "base") && $object->base()) {
-			
-			$object->baseClasses([$self->_typeToClass($object->base(), $opts)]);					
-		}elsif (UNIVERSAL::isa($object, "Corinna::Schema::Element") 
-				&& $object->type() && ($object->scope() =~ /global/)){
-			$object->baseClasses([$self->_typeToClass($object->type(), $opts), "Corinna::Element"]);
-		}elsif ( UNIVERSAL::isa($object, "Corinna::Schema::SimpleType")) {
-			my $isa = $opts->{simple_isa};
-			$isa = ( (ref($isa) =~ /ARRAY/) ? $isa : ($isa ? [$isa] : []));
-			$object->baseClasses([@$isa, "Corinna::SimpleType"]);								
-		}elsif ( UNIVERSAL::isa($object, "Corinna::Schema::ComplexType")) {
-			my $isa = $opts->{complex_isa};
-			$isa = ( (ref($isa) =~ /ARRAY/) ? $isa : ($isa ? [$isa] : []));
-			$object->baseClasses([@$isa, "Corinna::ComplexType"]);			
-		}
-	}
-	
-	
-	return $object;
+    if ( UNIVERSAL::can( $object, "metaClass" ) ) {
+        $object->metaClass( $class_prefix . "Pastor::Meta" );
+    }
+
+    if ( UNIVERSAL::isa( $object, "Corinna::Schema::Type" ) ) {
+        print "   object '"
+          . $object->name
+          . "' is a Type. Resolving class...\n"
+          if ( $verbose >= 7 );
+        $object->class( $self->_typeToClass( $object->name(), $opts ) );
+    }
+    elsif ( UNIVERSAL::isa( $object, "Corinna::Schema::Element" )
+        && ( $object->scope() =~ /global/ ) )
+    {
+        print "   object '"
+          . $object->name
+          . "' is a global element. Resolving class...\n"
+          if ( $verbose >= 7 );
+        my $uri =
+          UNIVERSAL::can( $object, 'targetNamespace' )
+          ? $object->targetNamespace
+          : "";
+        my $pfx = $uri ? $self->namespaceClassPrefix($uri) : "";
+        $object->class( $class_prefix . $pfx . $object->name() );
+    }
+    elsif (UNIVERSAL::can( $object, "type" )
+        && UNIVERSAL::can( $object, "class" ) )
+    {
+        print "   object '"
+          . ( $object->name || '' )
+          . "' 'can' type() and class(). TYPE='"
+          . ( $object->type() || '' )
+          . "' CLASS='"
+          . ( $object->class() || '' )
+          . "' Resolving class...\n"
+          if ( $verbose >= 7 );
+
+        $object->class( $self->_typeToClass( $object->type(), $opts ) );
+    }
+
+    if (   UNIVERSAL::can( $object, "itemType" )
+        && UNIVERSAL::can( $object, "itemClass" )
+        && $object->itemType )
+    {
+        print "   object '"
+          . $object->name
+          . "' 'can' itemType() and itemClass(). Resolving class...\n"
+          if ( $verbose >= 7 );
+        $object->itemClass( $self->_typeToClass( $object->itemType, $opts ) );
+    }
+
+    if (   UNIVERSAL::can( $object, "memberTypes" )
+        && UNIVERSAL::can( $object, "memberClasses" )
+        && $object->memberTypes )
+    {
+        print "   object '"
+          . $object->name
+          . "' 'can' memberTypes() and memberClasses(). Resolving class...\n"
+          if ( $verbose >= 7 );
+        my @mbts = split ' ', $object->memberTypes;
+        $object->memberClasses(
+            [ map { $self->_typeToClass( $_, $opts ); } @mbts ] );
+    }
+
+    if ( UNIVERSAL::can( $object, "baseClasses" ) ) {
+        print "   object '"
+          . $object->name
+          . "' 'can' baseClasses(). Resolving class...\n"
+          if ( $verbose >= 7 );
+
+        if ( UNIVERSAL::can( $object, "base" ) && $object->base() ) {
+
+            $object->baseClasses(
+                [ $self->_typeToClass( $object->base(), $opts ) ] );
+        }
+        elsif (UNIVERSAL::isa( $object, "Corinna::Schema::Element" )
+            && $object->type()
+            && ( $object->scope() =~ /global/ ) )
+        {
+            $object->baseClasses(
+                [
+                    $self->_typeToClass( $object->type(), $opts ),
+                    "Corinna::Element"
+                ]
+            );
+        }
+        elsif ( UNIVERSAL::isa( $object, "Corinna::Schema::SimpleType" ) ) {
+            my $isa = $opts->{simple_isa};
+            $isa = ( ( ref($isa) =~ /ARRAY/ ) ? $isa : ( $isa ? [$isa] : [] ) );
+            $object->baseClasses( [ @$isa, "Corinna::SimpleType" ] );
+        }
+        elsif ( UNIVERSAL::isa( $object, "Corinna::Schema::ComplexType" ) ) {
+            my $isa = $opts->{complex_isa};
+            $isa = ( ( ref($isa) =~ /ARRAY/ ) ? $isa : ( $isa ? [$isa] : [] ) );
+            $object->baseClasses( [ @$isa, "Corinna::ComplexType" ] );
+        }
+    }
+
+    return $object;
 }
 
 #------------------------------------------------------------------
 sub _resolveObjectAttributes {
-	my $self 		= shift;
-	my $object		= shift;
-	my $opts		= shift;
-	my $verbose		= $opts->{verbose} || 0;
+    my $self    = shift;
+    my $object  = shift;
+    my $opts    = shift;
+    my $verbose = $opts->{verbose} || 0;
 
-	return undef unless (UNIVERSAL::can($object, "attributes"));
-	print STDERR "  Resolving ATTRIBUTES for object '" . $object->name . "' ...\n" if ($verbose >= 6);
-	
-	my $attributes 	= $object->attributes();
-	my $attribInfo 	= $object->attributeInfo();
-	my $newAttribs	= [];
-				
-	foreach my $attribName (@$attributes) {
-		my $attrib = $attribInfo->{$attribName};
-		$self->_resolveObject($attrib, $opts);
-		
-		unless (UNIVERSAL::isa($attrib, "Corinna::Schema::Attribute")) {
-			my $a= (UNIVERSAL::can($attrib, "definition") && $attrib->definition()) || $attrib;
-			push @$newAttribs, @{$a->attributes()} 		if UNIVERSAL::can($a, "attributes");
-			mergeHash($attribInfo,$a->attributeInfo())	if UNIVERSAL::can($a, "attributeInfo");
-		}else {
-			push @$newAttribs, $attribName;
-		}		
-	}	
-	
-	$object->attributes($newAttribs);
-	return $object;
+    return undef unless ( UNIVERSAL::can( $object, "attributes" ) );
+    print STDERR "  Resolving ATTRIBUTES for object '"
+      . $object->name
+      . "' ...\n"
+      if ( $verbose >= 6 );
+
+    my $attributes = $object->attributes();
+    my $attribInfo = $object->attributeInfo();
+    my $newAttribs = [];
+
+    foreach my $attribName (@$attributes) {
+        my $attrib = $attribInfo->{$attribName};
+        $self->_resolveObject( $attrib, $opts );
+
+        unless ( UNIVERSAL::isa( $attrib, "Corinna::Schema::Attribute" ) ) {
+            my $a =
+              ( UNIVERSAL::can( $attrib, "definition" )
+                  && $attrib->definition() )
+              || $attrib;
+            push @$newAttribs, @{ $a->attributes() }
+              if UNIVERSAL::can( $a, "attributes" );
+            mergeHash( $attribInfo, $a->attributeInfo() )
+              if UNIVERSAL::can( $a, "attributeInfo" );
+        }
+        else {
+            push @$newAttribs, $attribName;
+        }
+    }
+
+    $object->attributes($newAttribs);
+    return $object;
 }
 
 #------------------------------------------------------------------
 sub _resolveObjectElements {
-	my $self 		= shift;
-	my $object		= shift;
-	my $opts		= shift;
-	my $verbose		= $opts->{verbose} || 0;
+    my $self    = shift;
+    my $object  = shift;
+    my $opts    = shift;
+    my $verbose = $opts->{verbose} || 0;
 
-	return undef unless (UNIVERSAL::can($object, "elements"));
+    return undef unless ( UNIVERSAL::can( $object, "elements" ) );
 
-	print STDERR "  Resolving ELEMENTS for object '" . $object->name . "' ...\n" if ($verbose >= 6);
-	
-	my $elements 	= $object->elements();
-	my $elemInfo 	= $object->elementInfo();
-	my $newElems	= [];
-				
-	foreach my $elemName (@$elements) {
-		my $elem = $elemInfo->{$elemName};
-		$self->_resolveObject($elem, $opts);
-		
-		unless (UNIVERSAL::isa($elem, "Corinna::Schema::Element")) {
-			my $e= (UNIVERSAL::can($elem, "definition") && $elem->definition()) || $elem;			
-			push @$newElems, @{$e->elements()} 		if UNIVERSAL::can($e, "elements");
-			mergeHash($elemInfo,$e->elementInfo()) 	if UNIVERSAL::can($e, "elementInfo");
-		}else {
-			push @$newElems, $elemName;
-		}		
-	}	
-	
-	$object->elements($newElems);
-	return $object;
+    print STDERR "  Resolving ELEMENTS for object '" . $object->name . "' ...\n"
+      if ( $verbose >= 6 );
+
+    my $elements = $object->elements();
+    my $elemInfo = $object->elementInfo();
+    my $newElems = [];
+
+    foreach my $elemName (@$elements) {
+        my $elem = $elemInfo->{$elemName};
+        $self->_resolveObject( $elem, $opts );
+
+        unless ( UNIVERSAL::isa( $elem, "Corinna::Schema::Element" ) ) {
+            my $e =
+              ( UNIVERSAL::can( $elem, "definition" ) && $elem->definition() )
+              || $elem;
+            push @$newElems, @{ $e->elements() }
+              if UNIVERSAL::can( $e, "elements" );
+            mergeHash( $elemInfo, $e->elementInfo() )
+              if UNIVERSAL::can( $e, "elementInfo" );
+        }
+        else {
+            push @$newElems, $elemName;
+        }
+    }
+
+    $object->elements($newElems);
+    return $object;
 }
 
 #------------------------------------------------------------------
 sub _resolveObjectBase {
-	my $self 		= shift;
-	my $object		= shift;
-	my $opts		= shift;
-	my $verbose		= $opts->{verbose} || 0;
+    my $self    = shift;
+    my $object  = shift;
+    my $opts    = shift;
+    my $verbose = $opts->{verbose} || 0;
 
-	return undef unless (UNIVERSAL::can($object, "base") && $object->base());
-	print STDERR "  Resolving BASE for object '" . $object->name . "' ...\n" if ($verbose >= 6);
-	
-	
-	my $base 		= $object->base();
-	my $types		= $self->type();
-	my $baseType 	= $types->{$base};
-	
-	
-	return undef unless ($baseType);
-	$self->_resolveObject($baseType, $opts);
-	
+    return undef
+      unless ( UNIVERSAL::can( $object, "base" ) && $object->base() );
+    print STDERR "  Resolving BASE for object '" . $object->name . "' ...\n"
+      if ( $verbose >= 6 );
 
-	if (UNIVERSAL::can($object, "xAttributes")) {
-		my $xattribs	= [];
-		my $xattribInfo	= {};
-		
-		push @$xattribs, @{$baseType->effectiveAttributes()};
-		mergeHash ($xattribInfo, $baseType->effectiveAttributeInfo());
-		
-		push @$xattribs, @{$object->attributes()};		
-		mergeHash ($xattribInfo, $object->attributeInfo());		
-		
-		print ' ' . scalar(@$xattribs) . ' attributes. ' if ($verbose >=5);
-		
-		if (@$xattribs) {
-			$object->xAttributes($xattribs);
-			$object->xAttributeInfo($xattribInfo);
-		}
-	}
+    my $base     = $object->base();
+    my $types    = $self->type();
+    my $baseType = $types->{$base};
 
-	if (UNIVERSAL::can($object, "xElements")) {
-		my $xelems		= [];
-		my $xelemInfo	= {};
-		
-		push @$xelems, @{$baseType->effectiveElements()};
-		mergeHash ($xelemInfo, $baseType->effectiveElementInfo());
-		
-		push @$xelems, @{$object->elements()};		
-		mergeHash ($xelemInfo, $object->elementInfo());		
+    return undef unless ($baseType);
+    $self->_resolveObject( $baseType, $opts );
 
-#		print ' ' . scalar(@$xelems) . ' elements. ';
-		if (@$xelems) {
-			$object->xElements($xelems);
-			$object->xElementInfo($xelemInfo);
-		}
-	}
-		
-	return $object;
+    if ( UNIVERSAL::can( $object, "xAttributes" ) ) {
+        my $xattribs    = [];
+        my $xattribInfo = {};
+
+        push @$xattribs, @{ $baseType->effectiveAttributes() };
+        mergeHash( $xattribInfo, $baseType->effectiveAttributeInfo() );
+
+        push @$xattribs, @{ $object->attributes() };
+        mergeHash( $xattribInfo, $object->attributeInfo() );
+
+        print ' ' . scalar(@$xattribs) . ' attributes. ' if ( $verbose >= 5 );
+
+        if (@$xattribs) {
+            $object->xAttributes($xattribs);
+            $object->xAttributeInfo($xattribInfo);
+        }
+    }
+
+    if ( UNIVERSAL::can( $object, "xElements" ) ) {
+        my $xelems    = [];
+        my $xelemInfo = {};
+
+        push @$xelems, @{ $baseType->effectiveElements() };
+        mergeHash( $xelemInfo, $baseType->effectiveElementInfo() );
+
+        push @$xelems, @{ $object->elements() };
+        mergeHash( $xelemInfo, $object->elementInfo() );
+
+        #		print ' ' . scalar(@$xelems) . ' elements. ';
+        if (@$xelems) {
+            $object->xElements($xelems);
+            $object->xElementInfo($xelemInfo);
+        }
+    }
+
+    return $object;
 }
 
 #------------------------------------------------------------------
 sub _typeToClass {
-	my $self 		= shift;
-	my $type		= shift;
-	my $opts		= shift;
-	my $object		= $opts->{object};
-	my $isNonType	= $opts->{isNonType} || 0;
-	my $typePfx 	= $isNonType ?  "" : "Type::";
-	my $verbose		= 0;
-		
-	return undef unless (defined($type)); 
+    my $self      = shift;
+    my $type      = shift;
+    my $opts      = shift;
+    my $object    = $opts->{object};
+    my $isNonType = $opts->{isNonType} || 0;
+    my $typePfx   = $isNonType ? "" : "Type::";
+    my $verbose   = 0;
 
-	my $class_prefix = $opts->{class_prefix} || "";
-	while (($class_prefix) && ($class_prefix !~ /::$/)) {
-		$class_prefix .= ':';
-	}
+    return undef unless ( defined($type) );
 
-	my $builtin_prefix 	= "Corinna::Builtin::";
-	if (($type =~ /^Union$/i) || ($type =~ /^List$/i)) {
-		# This one is put by the parser. So we don't have a URI for it.
-		return $builtin_prefix . ucfirst($type);		
-	}elsif (!$type) {
-		# No type declaration, assume string
-		return $builtin_prefix . "string";		
-	}elsif ($type =~ /www.w3.org\/.*\/XMLSchema$/) {
-		# Builtin type
-		my ($localType)		= split /\|/, $type;				
-		return $builtin_prefix . $localType;
-	}elsif ($type =~ /\|/) {
-		# Type with a namespace. 
-		my ($localType, $uri)	= split /\|/, $type;
-		my $pfx = $self->namespaceClassPrefix($uri);		
-		
-		my $retval = $class_prefix . $pfx . $typePfx . $localType; ;
-		print STDERR "_typeToClass: from '$type'   to    '$retval'\n" if ($verbose >=9);
-		
-		return $retval;
-		#die "Pastor: Namespaces not yet supported!\n";
-	}else {
-		# Regular type.
-		my $uri = UNIVERSAL::can($object, 'targetNamespace') ? $object->targetNamespace : "";
-		my $pfx = $uri ? $self->namespaceClassPrefix($uri) : ""; 
-		return $class_prefix . $pfx . $typePfx . $type;		
-	}
+    my $class_prefix = $opts->{class_prefix} || "";
+    while ( ($class_prefix) && ( $class_prefix !~ /::$/ ) ) {
+        $class_prefix .= ':';
+    }
+
+    my $builtin_prefix = "Corinna::Builtin::";
+    if ( ( $type =~ /^Union$/i ) || ( $type =~ /^List$/i ) ) {
+
+        # This one is put by the parser. So we don't have a URI for it.
+        return $builtin_prefix . ucfirst($type);
+    }
+    elsif ( !$type ) {
+
+        # No type declaration, assume string
+        return $builtin_prefix . "string";
+    }
+    elsif ( $type =~ /www.w3.org\/.*\/XMLSchema$/ ) {
+
+        # Builtin type
+        my ($localType) = split /\|/, $type;
+        return $builtin_prefix . $localType;
+    }
+    elsif ( $type =~ /\|/ ) {
+
+        # Type with a namespace.
+        my ( $localType, $uri ) = split /\|/, $type;
+        my $pfx = $self->namespaceClassPrefix($uri);
+
+        my $retval = $class_prefix . $pfx . $typePfx . $localType;
+        print STDERR "_typeToClass: from '$type'   to    '$retval'\n"
+          if ( $verbose >= 9 );
+
+        return $retval;
+
+        #die "Pastor: Namespaces not yet supported!\n";
+    }
+    else {
+
+        # Regular type.
+        my $uri =
+          UNIVERSAL::can( $object, 'targetNamespace' )
+          ? $object->targetNamespace
+          : "";
+        my $pfx = $uri ? $self->namespaceClassPrefix($uri) : "";
+        return $class_prefix . $pfx . $typePfx . $type;
+    }
 }
-
 
 #-------------------------------------------------------
 sub namespaceClassPrefix {
-	my $self 	= shift;
-	my $uri		= shift;
-	
-	my $ns = $self->namespaces->{$uri};
-	my $pfx = defined($ns) ? ($ns->classPrefix() || "") : "";
-	while (($pfx) && ($pfx !~ /::$/)) {
-		$pfx .= ':';
-	}
-	
-	return $pfx;
+    my $self = shift;
+    my $uri  = shift;
+
+    my $ns = $self->namespaces->{$uri};
+    my $pfx = defined($ns) ? ( $ns->class_prefix() || "" ) : "";
+    while ( ($pfx) && ( $pfx !~ /::$/ ) ) {
+        $pfx .= ':';
+    }
+
+    return $pfx;
 }
 
 1;

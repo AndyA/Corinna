@@ -1,25 +1,19 @@
-use utf8;
-use strict;
-use warnings;
-no warnings qw(uninitialized);
-
-
-#===============================================
 package Corinna::Stack;
 
+use strict;
+use warnings;
 
 our $VERSION = '0.01';
 
 sub new {
-    my $proto = shift();
-    my $class = ref($proto) || $proto;
+    my $class = shift;
 
     my $self = [];
-    if(@_) {
-        push(@{ $self }, @_);
+    if (@_) {
+        push( @{$self}, @_ );
     }
 
-    return bless($self, $class);
+    return bless( $self, $class );
 }
 
 sub peek {
@@ -31,11 +25,11 @@ sub peek {
 sub clear {
     my $self = shift();
 
-    $#{ $self } = -1;
+    $#{$self} = -1;
 }
 
 sub get {
-    my $self = shift();
+    my $self  = shift();
     my $index = shift();
 
     return $self->[$index];
@@ -44,13 +38,13 @@ sub get {
 sub count {
     my $self = shift();
 
-    return $#{ $self } + 1;
+    return $#{$self} + 1;
 }
 
 sub empty {
     my $self = shift();
 
-    if($self->count() == 0) {
+    if ( $self->count() == 0 ) {
         return 1;
     }
 
@@ -60,13 +54,13 @@ sub empty {
 sub pop {
     my $self = shift();
 
-    return shift(@{ $self });
+    return shift( @{$self} );
 }
 
 sub push {
     my $self = shift();
 
-    unshift(@{ $self }, shift());
+    unshift( @{$self}, shift() );
 }
 
 1;
@@ -79,14 +73,16 @@ Corinna::Stack - A Stack!
 
 =head1 WARNING
 
-This module is used internally by L<Corinna>. You do not normally know much about this module to actually use L<Corinna>.  It is 
-documented here for completeness and for L<Corinna> developers. Do not count on the interface of this module. It may change in 
-any of the subsequent releases. You have been warned. 
+This module is used internally by L<Corinna>. You do not normally know much
+about this module to actually use L<Corinna>.  It is documented here for
+completeness and for L<Corinna> developers. Do not count on the interface of
+this module. It may change in any of the subsequent releases. You have been
+warned. 
 
 =head1 SYNOPSIS
 
   use Corinna::Stack;
-  my $stack = new Corinna::Stack();
+  my $stack = Corinna::Stack->new();
 
 =head1 DESCRIPTION
 
