@@ -52,7 +52,9 @@ t/01.7.generate_offline_multiple_01_country.t
 t/02.5.instance01_country.t
 t/02.5.instance02_product.t
 t/02.5.instance03_country_import.t
+t/complex_type_bug.t
 test/bin/testme.pl
+test/source/bugs/schema/complex_type_from_simple_type.xsd
 test/source/country/schema/common.xsd
 test/source/country/schema/country_schema1.xsd
 test/source/country/schema/country_schema2.xsd

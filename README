@@ -12,6 +12,9 @@ This module is a fork of L<XML::Pastor> with the intent of cleaning up the
 internals, switching it to L<Moose> and allowing much cleaner code to be
 output. More to the point, it will be on github to encourage others to help.
 
+Long-term, I would like to have parse multiple sources and have multiple code
+generators, but for now, we'll clean what we have.
+
 SYNOPSIS
 
     use Corinna;
@@ -794,6 +797,9 @@ BUGS & CAVEATS
     aware of.
 
 AUTHOR
+    Curtis "Ovid" Poe.
+
+AUTHOR EMERITUS
     Ayhan Ulusoy <dev(at)ulusoy(dot)name>
 
 COPYRIGHT

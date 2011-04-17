@@ -3,6 +3,13 @@ Revision history for Perl extension Corinna
 This module was originally named XML::Pastor. We've forked and renamed it to
 Corinna.
 
+2.0 April 17, 2011
+  - Forked and renamed as Corinna.
+  - Fixed https://rt.cpan.org/Ticket/Display.html?id=39692
+    (_sprint_xml_element bug)
+  - Applied https://rt.cpan.org/Ticket/Display.html?id=44761, but it doesn't
+    appear to really fix it. See t/complex_type_bug.t
+
 1.0.3 Sat Aug 02 2008
 	- Now, Corinna also generates a special class $class_prefix . "::Pastor::Meta", which may be used to get at the schema Model()
 	- Corinna::Schema::Model now has two new instance methods: xml_item() and xml_item_class

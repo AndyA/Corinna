@@ -551,8 +551,10 @@ sub _resolve_object_base {
         my $xattribs    = [];
         my $xattribInfo = {};
 
-        push @$xattribs, @{ $baseType->effective_attributes() };
-        merge_hash( $xattribInfo, $baseType->effective_attribute_info() );
+        if (UNIVERSAL::can($baseType, 'effective_attributes')) {
+            push @$xattribs, @{ $baseType->effective_attributes() };
+            merge_hash( $xattribInfo, $baseType->effective_attribute_info() );
+        }
 
         push @$xattribs, @{ $object->attributes() };
         merge_hash( $xattribInfo, $object->attributeInfo() );
@@ -569,8 +571,10 @@ sub _resolve_object_base {
         my $xelems    = [];
         my $xelemInfo = {};
 
-        push @$xelems, @{ $baseType->effective_elements() };
-        merge_hash( $xelemInfo, $baseType->effective_element_info() );
+        if (UNIVERSAL::can($baseType, 'effective_elements')) {
+            push @$xelems, @{ $baseType->effective_elements() };
+            merge_hash( $xelemInfo, $baseType->effective_element_info() );
+        }
 
         push @$xelems, @{ $object->elements() };
         merge_hash( $xelemInfo, $object->elementInfo() );
