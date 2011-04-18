@@ -134,15 +134,15 @@ sub add {
       ? $newItem->key()
       : ( UNIVERSAL::can( $newItem, "name" ) ? $newItem->name : '_anonymous_' );
     if ( defined( my $oldItem = $items->{$key} ) ) {
-        unless ( UNIVERSAL::can( $oldItem, 'isRedefinable' )
-            && $oldItem->isRedefinable() )
+        unless ( UNIVERSAL::can( $oldItem, 'is_redefinable' )
+            && $oldItem->is_redefinable() )
         {
             die "Pastor : $field already defined : '$key'\\n";
         }
     }
-    $newItem->isRedefinable(1)
+    $newItem->is_redefinable(1)
       if ( $args->{operation} !~ /redefine/i )
-      && UNIVERSAL::can( $newItem, 'isRedefinable' );
+      && UNIVERSAL::can( $newItem, 'is_redefinable' );
     $items->{$key} = $newItem;
 
 }
@@ -821,7 +821,7 @@ In this case, the type of the object is not taken into consideration.
 
 Normally, when a schema object is already defined within the model, it is an error to attempt to add it
 again to the model. This means that the object is defined twice in the W3C schema. However, this rule
-is relaxed when the object within the sceham is marked as I<redefinable> (see L<Corinna::Schema::Object/isRedefinable()>). 
+is relaxed when the object within the sceham is marked as I<redefinable> (see L<Corinna::Schema::Object/is_redefinable()>). 
 This is typically the case when we are in a I<redefine> block (when a schema is included wit the redefine tag). 
 
 =head4 xml_item($name, [$nsUri])
