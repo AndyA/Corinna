@@ -22,8 +22,7 @@ $VERSION = '1.0.1';
 # METHOD
 #-------------------------------------------------------------
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+    my $self = shift;
     my $self  = {@_};
     return bless $self, $class;
 }

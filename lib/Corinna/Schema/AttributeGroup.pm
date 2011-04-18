@@ -13,8 +13,7 @@ our @ISA = qw(Corinna::Schema::Object);
 Corinna::Schema::AttributeGroup->mk_accessors(qw(attributes attributeInfo));
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+    my $class = shift;
     my $self  = {@_};
 
     unless ( $self->{attributes} ) {

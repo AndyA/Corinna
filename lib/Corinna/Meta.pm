@@ -16,8 +16,7 @@ Corinna::Meta->mk_classdata('Model');
 # If single parameter, then it is taken to be the value.
 #----------------------------------------------
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+    my $class = shift;
     my $self  = {@_};
 
     return bless $self, $class;

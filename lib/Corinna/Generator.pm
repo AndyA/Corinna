@@ -14,8 +14,7 @@ use Class::Accessor;
 use Corinna::Util qw(merge_hash module_path);
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+    my $class = shift;
     my $self  = {@_};
     return bless $self, $class;
 }
