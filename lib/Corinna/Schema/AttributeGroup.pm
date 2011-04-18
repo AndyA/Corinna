@@ -10,7 +10,7 @@ use Corinna::Schema::Object;
 
 our @ISA = qw(Corinna::Schema::Object);
 
-Corinna::Schema::AttributeGroup->mk_accessors(qw(attributes attributeInfo));
+Corinna::Schema::AttributeGroup->mk_accessors(qw(attributes attribute_info));
 
 sub new {
     my $class = shift;
@@ -19,8 +19,8 @@ sub new {
     unless ( $self->{attributes} ) {
         $self->{attributes} = [];
     }
-    unless ( $self->{attributeInfo} ) {
-        $self->{attributeInfo} = {};
+    unless ( $self->{attribute_info} ) {
+        $self->{attribute_info} = {};
     }
     unless ( $self->{contentType} ) {
         $self->{contentType} = "attributeGroup";
@@ -93,7 +93,7 @@ In its overriden form, what this method does is as follows:
 
 =item * creates the B<attributes> array-ref field if not passed already as a parameter;
 
-=item * creates the B<attributeInfo> hash-ref field if not passed already as a parameter;
+=item * creates the B<attribute_info> hash-ref field if not passed already as a parameter;
 
 =back
 
@@ -115,10 +115,10 @@ Please see L<Corinna::Schema::Object> for a documentation of those.
 
 A reference to an array containing the names of the attributes that this B<attribute group> has.
 
-=head4 attributeInfo()
+=head4 attribute_info()
 
-  my $ai = $object->attributeInfo();  # GET
-  $object->attributeInfo($ai);        # SET
+  my $ai = $object->attribute_info();  # GET
+  $object->attribute_info($ai);        # SET
 
 A reference to a hash whose keys are the names of the attributes, and whose values are
 objects of type L<Corinna::Schema::Attribute>, that give meta information about those attributes.

@@ -464,7 +464,7 @@ sub _resolve_object_attributes {
       if ( $verbose >= 6 );
 
     my $attributes = $object->attributes();
-    my $attribInfo = $object->attributeInfo();
+    my $attribInfo = $object->attribute_info();
     my $newAttribs = [];
 
     foreach my $attribName (@$attributes) {
@@ -478,8 +478,8 @@ sub _resolve_object_attributes {
               || $attrib;
             push @$newAttribs, @{ $a->attributes() }
               if UNIVERSAL::can( $a, "attributes" );
-            merge_hash( $attribInfo, $a->attributeInfo() )
-              if UNIVERSAL::can( $a, "attributeInfo" );
+            merge_hash( $attribInfo, $a->attribute_info() )
+              if UNIVERSAL::can( $a, "attribute_info" );
         }
         else {
             push @$newAttribs, $attribName;
@@ -557,7 +557,7 @@ sub _resolve_object_base {
         }
 
         push @$xattribs, @{ $object->attributes() };
-        merge_hash( $xattribInfo, $object->attributeInfo() );
+        merge_hash( $xattribInfo, $object->attribute_info() );
 
         print ' ' . scalar(@$xattribs) . ' attributes. ' if ( $verbose >= 5 );
 

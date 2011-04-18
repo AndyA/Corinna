@@ -393,7 +393,7 @@ sub _process_attribute {
           )
         {
             my $attribs    = $host->attributes();
-            my $attribInfo = $host->attributeInfo();
+            my $attribInfo = $host->attribute_info();
             push @$attribs, $obj->name();
             $attribInfo->{ $obj->name() } = $obj;
         }
@@ -448,7 +448,7 @@ sub _process_attributeGroup {
             $context->find_node( class => "Corinna::Schema::ComplexType" ) )
         {
             my $attribs    = $host->attributes();
-            my $attribInfo = $host->attributeInfo();
+            my $attribInfo = $host->attribute_info();
             push @$attribs, $obj->name();
             $attribInfo->{ $obj->name() } = $obj;
         }

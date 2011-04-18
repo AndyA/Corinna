@@ -11,7 +11,7 @@ use Corinna::Schema::Type;
 our @ISA = qw(Corinna::Schema::Type);
 
 Corinna::Schema::ComplexType->mk_accessors(
-    qw(attributes attributeInfo attributePrefix elements elementInfo isSimpleContent xAttributes xAttributeInfo xElements xElementInfo)
+    qw(attributes attribute_info attributePrefix elements elementInfo isSimpleContent xAttributes xAttributeInfo xElements xElementInfo)
 );
 
 sub new {
@@ -22,8 +22,8 @@ sub new {
     unless ( $self->{attributes} ) {
         $self->{attributes} = [];
     }
-    unless ( $self->{attributeInfo} ) {
-        $self->{attributeInfo} = {};
+    unless ( $self->{attribute_info} ) {
+        $self->{attribute_info} = {};
     }
 
     unless ( $self->{elements} ) {
@@ -53,11 +53,11 @@ sub effective_attributes {
 }
 
 #-----------------------------------------------------------------
-# Return effective attributeInfo, including those that may come from base classes.
+# Return effective attribute_info, including those that may come from base classes.
 #-----------------------------------------------------------------
 sub effective_attribute_info {
     my $self = shift;
-    return ( $self->xAttributeInfo() || $self->attributeInfo() );
+    return ( $self->xAttributeInfo() || $self->attribute_info() );
 }
 
 #-----------------------------------------------------------------
@@ -142,7 +142,7 @@ In its overriden form, what this method does is as follows:
 
 =item * creates the B<attributes> and B<elements> array-ref fields if not passed already as parameters;
 
-=item * creates the B<attributeInfo> and B<elementInfo> hash-ref fields if not passed already as parameters;
+=item * creates the B<attribute_info> and B<elementInfo> hash-ref fields if not passed already as parameters;
 
 =back
 
@@ -167,10 +167,10 @@ A reference to an array containing the names of the attributes that this complex
 Notice that this field refers to only attributes that are declared at this level. Any attributes 
 that are inherited via derivation by extension are not considered here.
 
-=head4 attributeInfo()
+=head4 attribute_info()
 
-  my $ai = $object->attributeInfo();  # GET
-  $object->attributeInfo($ai);        # SET
+  my $ai = $object->attribute_info();  # GET
+  $object->attribute_info($ai);        # SET
 
 A reference to a hash whose keys are the names of the attributes, and whose values are
 objects of type L<Corinna::Schema::Attribute>, that give meta information about those attributes.
@@ -260,7 +260,7 @@ this method returns the same as L</xAttributes()>. Otherwise, it returns the sam
 =head4 effective_attribute_info()
 
 When this complex type has been derived from another, L</xAttributeInfo()> will be defined. In this case
-this method returns the same as L</xAttributeInfo()>. Otherwise, it returns the same as L</attributeInfo()>.
+this method returns the same as L</xAttributeInfo()>. Otherwise, it returns the same as L</attribute_info()>.
 
 =head4 effective_elements()
 

@@ -460,8 +460,8 @@ sub _calculate_uses {
             $self->_calculate_uses( $object->definition(), $opts ) );
     }
 
-    if ( UNIVERSAL::can( $object, "attributeInfo" ) ) {
-        foreach my $attrib ( values %{ $object->attributeInfo() } ) {
+    if ( UNIVERSAL::can( $object, "attribute_info" ) ) {
+        foreach my $attrib ( values %{ $object->attribute_info() } ) {
             merge_hash( $result, $self->_calculate_uses( $attrib, $opts ) );
         }
     }
