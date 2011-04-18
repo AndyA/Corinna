@@ -13,8 +13,7 @@ Corinna::Schema::Object->mk_accessors(
 
 #------------------------------------------------------------
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+    my $class = shift;
     my $self  = {@_};
     return bless $self, $class;
 }
