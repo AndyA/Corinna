@@ -13,7 +13,7 @@ use Corinna::Schema::Object;
 our @ISA = qw(Class::Accessor);
 
 Corinna::Schema::Context->mk_accessors(
-    qw(	counter schema schema_url operation nodeStack targetNamespace));
+    qw(	counter schema schema_url operation node_stack targetNamespace));
 
 #------------------------------------------------------------
 sub new {
@@ -21,8 +21,8 @@ sub new {
     my $class = ref($proto) || $proto;
     my $self  = {@_};
 
-    unless ( $self->{nodeStack} ) {
-        $self->{nodeStack} = Corinna::Stack->new();
+    unless ( $self->{node_stack} ) {
+        $self->{node_stack} = Corinna::Stack->new();
     }
 
     unless ( defined( $self->{counter} ) ) {
@@ -35,7 +35,7 @@ sub new {
 #------------------------------------------------------------
 sub top_node {
     my $self = shift;
-    return $self->nodeStack()->peek();
+    return $self->node_stack()->peek();
 }
 
 #------------------------------------------------------------
@@ -44,9 +44,9 @@ sub find_node {
     my $args  = {@_};
     my $class = $args->{class};
 
-    my $nodeStack = $self->nodeStack();
-    for ( my $i = 0 ; $i < $nodeStack->count() ; $i++ ) {
-        my $node = $nodeStack->get($i);
+    my $node_stack = $self->node_stack();
+    for ( my $i = 0 ; $i < $node_stack->count() ; $i++ ) {
+        my $node = $node_stack->get($i);
 
         #		print "\n", ref($node);
         if ( ref($class) =~ /ARRAY/ ) {
@@ -70,9 +70,9 @@ sub name_path {
     my $separator = $args->{separator} || '/';
     my @names     = ();
 
-    my $nodeStack = $self->nodeStack();
-    for ( my $i = 0 ; $i < $nodeStack->count() ; $i++ ) {
-        my $node = $nodeStack->get($i);
+    my $node_stack = $self->node_stack();
+    for ( my $i = 0 ; $i < $node_stack->count() ; $i++ ) {
+        my $node = $node_stack->get($i);
         my $name = undef;
         if ( UNIVERSAL::can( $node, "name_is_auto_generated" )
             && $node->name_is_auto_generated() )

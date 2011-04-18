@@ -245,7 +245,7 @@ sub _process {
 # It will "process" an element that is encountered in the
 # schema and then it will recurse in order to process its children.
 #
-# Keeps track of the parser state with a 'nodeStack' that holds the
+# Keeps track of the parser state with a 'node_stack' that holds the
 # previously created model objects (Attribute, Element, ComplexType, SimpleType, Group, ...).
 # On the top of the stack will appear the object that was most recently created.
 #------------------------------------------------------------
@@ -266,7 +266,7 @@ sub _process_node {
     }
 
     my $context   = $self->context();
-    my $nodeStack = $context->nodeStack();
+    my $node_stack = $context->node_stack();
     my $obj       = undef;
 
     # TODO : Namespaces
@@ -327,7 +327,7 @@ sub _process_node {
 # If the above created a model object, push it on the node stack within the current
 # context.
     if ( defined($obj) ) {
-        $nodeStack->push($obj);
+        $node_stack->push($obj);
     }
 
     # RECURSE into children.
@@ -351,7 +351,7 @@ sub _process_node {
             $self->_post_process_list( $obj, $node );
         }
 
-        $nodeStack->pop();
+        $node_stack->pop();
     }
     return 1;
 }
@@ -903,7 +903,7 @@ sub _process_schema_node {
     my $context = $self->context();
     my $obj = Corinna::Schema->new()->set_fields( get_attribute_hash($node) );
 
-    if ( $context->nodeStack->count() ) {
+    if ( $context->node_stack->count() ) {
         die "Pastor : Schema elements cannot be nested!\n";
     }
 
@@ -1054,7 +1054,7 @@ sub _process_complex_type {
 # in the schema being processed.
 #
 # One type of such elements are those who just have a 'value' attribute. In that
-# case we treat it as just an attribute of the top-most object in the nodeStack.
+# case we treat it as just an attribute of the top-most object in the node_stack.
 #
 # Any other element will cause a FATAL error as it is unrecognized.
 #------------------------------------------------------------
@@ -1069,7 +1069,7 @@ sub _process_other_nodes {
     if ( defined($value) ) {
 
         # Element with a 'value' attribute
-        unless ( $context->nodeStack()->count() ) {
+        unless ( $context->node_stack()->count() ) {
             die
 "Pastor : Element '$name' unexpected as root element in schema!\n";
         }
@@ -1137,7 +1137,7 @@ sub _fix_up_object {
     my $node    = shift;
     my $context = $self->context();
 
-    unless ( $context->nodeStack()->count()
+    unless ( $context->node_stack()->count()
         || UNIVERSAL::isa( $obj, "Corinna::Schema" ) )
     {
         die "Pastor Unexpected root element '"
