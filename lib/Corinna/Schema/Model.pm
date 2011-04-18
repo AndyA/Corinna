@@ -349,8 +349,8 @@ sub _resolve_object_class {
     print STDERR "  Resolving CLASS for object '" . $object->name . "' ... \n"
       if ( $verbose >= 6 );
 
-    if ( UNIVERSAL::can( $object, "metaClass" ) ) {
-        $object->metaClass( $class_prefix . "Pastor::Meta" );
+    if ( UNIVERSAL::can( $object, "meta_class" ) ) {
+        $object->meta_class( $class_prefix . "Pastor::Meta" );
     }
 
     if ( UNIVERSAL::isa( $object, "Corinna::Schema::Type" ) ) {
