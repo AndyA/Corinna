@@ -25,6 +25,7 @@ my $builder = Module::Build->new(
         'LWP::UserAgent'           => 0,
         'MIME::Base64'             => 0,
         'Moose'                    => 1,
+        'MooseX::UndefTolerant'    => 0.12,
         'Pod::Usage'               => 0,
         'Scalar::Util'             => 0,
         'Test::More'               => 0,
