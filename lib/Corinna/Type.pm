@@ -28,6 +28,8 @@ use overload
 # Accepts a single parameter or a hash.
 # If single parameter, then it is taken to be the value.
 #----------------------------------------------
+
+# Turns out that ref $proto is needed
 sub new {
     my $proto = shift;
     my $class = ref($proto) || $proto;

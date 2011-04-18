@@ -11,8 +11,7 @@ our @ISA = qw(Corinna::Schema::Object);
 Corinna::Schema::Group->mk_accessors(qw(elements elementInfo));
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+    my $class = shift;
     my $self  = {@_};
 
     unless ( $self->{elements} ) {

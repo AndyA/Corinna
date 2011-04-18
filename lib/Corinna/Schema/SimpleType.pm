@@ -31,8 +31,7 @@ Corinna::Schema::SimpleType->mk_accessors(
 );
 
 sub new {
-    my $proto = shift;
-    my $class = ref($proto) || $proto;
+    my $class = shift;
     my $self  = {@_};
 
     unless ( $self->{contentType} ) {
