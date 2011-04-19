@@ -22,7 +22,7 @@ $VERSION = '1.0.1';
 # METHOD
 #-------------------------------------------------------------
 sub new {
-    my $self = shift;
+    my $class = shift;
     my $self  = {@_};
     return bless $self, $class;
 }
